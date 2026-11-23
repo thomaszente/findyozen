@@ -171,6 +171,10 @@ footer{border-top:1px solid var(--line)}
 .wprompt{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;background:rgba(9,18,14,.92);border:1px solid var(--gold);border-radius:999px;padding:6px 6px 6px 18px;white-space:nowrap;box-shadow:0 0 30px rgba(246,220,143,.3)}
 .wprompt b{color:var(--gold2);font-family:Cinzel,serif}
 .wsub{position:absolute;top:12px;right:12px;left:auto;max-width:min(420px,60%);background:rgba(9,18,14,.9);border:1px solid var(--gold);border-radius:16px;padding:12px 16px;font-size:16px}
+.joy{position:absolute;left:22px;bottom:22px;width:120px;height:120px;border-radius:50%;border:2px solid rgba(246,220,143,.6);background:radial-gradient(circle,rgba(246,220,143,.12),rgba(9,18,14,.55));touch-action:none;display:grid;place-items:center;z-index:2}
+.knob{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3c4,#d9b45a);box-shadow:0 0 18px rgba(246,220,143,.6);pointer-events:none;transition:transform .05s}
+@media(hover:hover) and (pointer:fine){.joy{opacity:.55}}
+@media(max-width:600px){.hud{font-size:12px;max-width:62%;padding:8px 10px}.hud .long{display:none}.wprompt{bottom:160px}.walkbox{height:calc(100svh - 104px)}}
 .wload{position:absolute;inset:0;display:grid;place-items:center;font:600 20px Cinzel,serif;color:var(--gold2)}
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 16px}
 .form label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--soft)}
@@ -187,7 +191,7 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
 .acts div span{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}
 [hidden]{display:none!important}
 @media(max-width:860px){.temple .wrap,.two,.shrine{grid-template-columns:minmax(0,1fr)}.stage{max-width:460px}}
-@media(max-width:600px){nav a{padding:10px 8px;font-size:13px}#say{font-size:17px}}
+@media(max-width:600px){nav{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{padding:8px 10px;font-size:13px;flex:none;min-height:40px}header .wrap{row-gap:2px;padding-bottom:4px}#say{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.spin,.float,.deep .float,.breathe,.sway,.ray,.vortex,.lan,.flame,.rainbow #aura{animation:none}#aura,.fcard{transition:none}}
 </style>
 </head>
@@ -275,6 +279,7 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
   <div>
    <p>Strike the bowl. Each note is tuned to a chakra frequency.</p>
    <div class="lbl">Bowl note</div><div class="filters" id="notes"></div>
+   <div class="lbl">Om chants</div><div class="filters" id="oms"></div>
    <div class="lbl">Binaural beats (headphones)</div><div class="filters" id="beats"></div>
    <div class="lbl">Ambience</div><div class="filters" id="amb"></div>
    <div class="lbl">Volume</div><input type="range" id="vol" min="0" max="1" step="0.01" value="0.7" aria-label="Volume" style="width:100%">
@@ -373,7 +378,7 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
 <section id="v-walk" hidden>
  <div class="walkbox" id="walkBox">
   <div class="wload" id="walkLoad">Opening the temple doors…</div>
-  <div class="hud"><b>Walk the temple.</b> W A S D or arrows to walk, drag to look, Shift to run. On a phone, drag the left side to walk and the right side to look. Walk up to a glowing door or to the master.</div>
+  <div class="hud"><b>Walk the temple.</b> Tap the floor to walk there, or use the joystick. Drag to look around.<span class="long"> On a keyboard: W A S D or arrows, Shift to run, E to enter.</span> Walk up to a glowing door or to the master.</div>
   <div class="wprompt" data-prompt hidden><span>Enter <b></b></span><button class="btn" id="enterBtn">Enter (E)</button></div>
   <div class="wsub" id="wsub" hidden></div>
  </div>
@@ -705,9 +710,9 @@ function frame(){cx.clearRect(0,0,600,640);
 /* ================= master behaviour ================= */
 let busy=false,mode="menu",mtimer=null,score={},qi=0,lastMove=Date.now(),deep=false,lastFast=0,clicks=[],lidBase=.3;
 const tune=c=>document.documentElement.style.setProperty("--tune",c||(myF?`var(--${myF})`:G2));
-function say(t,opts=[],cite="",silent=false){$("#say").textContent=t;if(!silent)speak(t);$("#cite").textContent=cite?"— "+cite:"";$("#opts").innerHTML=opts.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join("");$("#opts").onclick=e=>{const b=e.target.closest("[data-o]");if(b)opts[+b.dataset.o][1]()}}
+function say(t,opts=[],cite="",silent=false,spoken){$("#say").textContent=t;$("#say").dataset.spoken=spoken||t;if(!silent)speak(spoken||t);$("#cite").textContent=cite?"— "+cite:"";$("#opts").innerHTML=opts.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join("");$("#opts").onclick=e=>{const b=e.target.closest("[data-o]");if(b)opts[+b.dataset.o][1]()}}
 const greet=()=>{const h=new Date().getHours();return h<5?"The temple glows at night, and so do you.":h<12?"Good morning, traveler. The bells are fresh.":h<17?"Good afternoon, traveler. The sun is high over the temple.":h<21?"Good evening, traveler. The lanterns are being lit.":"The night is quiet, traveler. A good time to listen."};
-function menu(t){mode="menu";say(t||greet()+" What does your spirit seek?",[["Teach me",quote],["Read my frequency",startQuiz],["Breathe with me",meditate],["Enter the Zen Den",()=>location.hash="den"]].concat(myF?[[`My frequency: ${F[myF].name}`,()=>result(myF)]]:[]))}
+function menu(t){mode="menu";say(t||greet()+" What does your spirit seek?",[["Teach me",quote],["Chant Om",chantMenu],["Read my frequency",startQuiz],["Breathe with me",meditate],["Enter the Zen Den",()=>location.hash="den"]].concat(myF?[[`My frequency: ${F[myF].name}`,()=>result(myF)]]:[]))}
 function quote(){const q=pick(QUOTES);mode="menu";smile();say(q[0],[["Another teaching",quote],["Read my frequency",startQuiz],["Enter the Zen Den",()=>location.hash="den"]],q[1]);burst(300,270,G2,18)}
 function startQuiz(){score={};qi=0;mode="quiz";ask()}
 function ask(){if(qi>=Q.length){const best=Object.keys(F).sort((a,b)=>(score[b]||0)-(score[a]||0))[0];myF=best;store.set("freq",best);burst();chime();result(best);return}
@@ -721,7 +726,7 @@ function meditate(){if(busy)return;busy=true;mode="med";setLids(1);let i=0;const
   const[w,s]=ph[i%4];$("#say").textContent=`${w}…  round ${Math.floor(i/4)+1} of 4`;speak(w);au.style.transform=`scale(${s})`;if(i%4===0&&!muted)tone(220,4,.06);i++;mtimer=setTimeout(tick,4000)};
  mtimer=setTimeout(tick,1200);
  function stop(){clearTimeout(mtimer);busy=false;setLids(lidBase);au.style.transform="";if(i<16)menu("Any breath is a good breath. What next?")}}
-function enterDeep(){if(deep||busy)return;deep=true;$("#stage").classList.add("deep");setLids(1);$("#aura").style.transform="scale(1.2)";say("…the master has drifted into deep meditation and is floating. Move gently to wake him.",[],"",true)}
+function enterDeep(){if(deep||busy||chanting)return;deep=true;$("#stage").classList.add("deep");setLids(1);$("#aura").style.transform="scale(1.2)";say("…the master has drifted into deep meditation and is floating. Move gently to wake him.",[],"",true)}
 function wake(){if(!deep)return;deep=false;$("#stage").classList.remove("deep");setLids(lidBase);$("#aura").style.transform="";menu("Ah. You have returned. I was visiting the stars.")}
 function blink(){if(!busy&&!deep){setLids(1);setTimeout(()=>{if(!busy&&!deep)setLids(lidBase)},140)}setTimeout(blink,2600+Math.random()*3800)}
 function enlightenment(){const st=$("#stage");st.classList.add("rainbow","deep");CK.forEach((c,i)=>setTimeout(()=>{burst(300,c.y,c.c,20);if(!muted)tone(c.hz,1.2,.06)},i*180));say("Seven touches… you have awakened all seven chakras! Enlightenment mode.",[["Return to earth",()=>{st.classList.remove("rainbow","deep");menu()}]]);setTimeout(()=>{st.classList.remove("rainbow","deep")},9000)}
@@ -736,14 +741,14 @@ function tipShow(e,html,pt){const t=$("#tip"),r=$("#stage").getBoundingClientRec
 function svgPt(e){const r=$("#scene").getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*600,y:(e.clientY-r.top)/r.height*640}}
 let beadIdx=0,lastHum=0;
 function countBead(){const bs=$$("#mala [data-b]");bs.forEach(b=>b.setAttribute("fill","url(#bead)"));const b=bs[beadIdx%bs.length];b.setAttribute("fill",G2);beadIdx++;bump("beads");if(!muted)bowl(beadIdx%108===0?396:660,1.2,.08);
- const n=stats.beads%108||108;if(stats.beads%108===0){burst(300,392,G2,50);say(`One full mala. 108 beads. You have now completed ${stats.beads/108} round${stats.beads/108>1?"s":""}.`,[["Keep counting",()=>{}],["Back",()=>menu()]])}else say(`Bead ${n} of 108. Say a word you wish to grow: peace, courage, love. Click again.`,[["Teach me",quote],["Back",()=>menu()]])}
+ const n=stats.beads%108||108;if(stats.beads%108===0){burst(300,392,G2,50);say(`One full mala. 108 beads. You have now completed ${stats.beads/108} round${stats.beads/108>1?"s":""}.`,[["Keep counting",()=>{}],["Back",()=>menu()]],"",false,"One full mala. One hundred and eight beads. Well done.")}else say(`Bead ${n} of 108. Say a word you wish to grow: peace, courage, love. Then touch the next bead.`,[["Teach me",quote],["Back",()=>menu()]],"",false,"Say a word you wish to grow. Peace, courage, love. Then touch the next bead.")}
 
 /* ================= portals ================= */
 let lastFocus=null;
 function portal({color,sk,title,body,opts}){lastFocus=document.activeElement;const p=$("#portal");p.style.setProperty("--pc",color);$("#pSk").textContent=sk||"";$("#pTitle").textContent=title;$("#pBody").innerHTML=body;$("#pOpts").innerHTML=opts.map((o,i)=>`<button class="opt" data-p="${i}">${o[0]}</button>`).join("");$("#pOpts").onclick=e=>{const b=e.target.closest("[data-p]");if(b)opts[+b.dataset.p][1]()};p.hidden=false;bump("portals");$("#pClose").focus()}
 function closePortal(){$("#portal").hidden=true;if(lastFocus)lastFocus.focus()}
 const go=h=>()=>{closePortal();location.hash=h};
-function chakraPortal(k){const c=CK.find(x=>x.k===k);tune(c.c);if(!muted)bowl(c.hz,5,.2);burst(300,c.y,c.c,30);
+function chakraPortal(k){const c=CK.find(x=>x.k===k);tune(c.c);if(!muted)bowl(c.hz,5,.2);speak(c.af);burst(300,c.y,c.c,30);
  portal({color:c.c,sk:`${c.s} · ${c.hz} Hz`,title:`${c.n} Chakra`,body:`<p><b>Where:</b> ${c.loc}<br><b>Element:</b> ${c.el}<br><b>Theme:</b> ${c.th}</p><p style="font-family:Cinzel,serif;color:${c.c};font-size:19px">“${c.af}”</p><p class="small">Close your eyes, rest your attention at the ${c.loc.toLowerCase()}, and repeat the affirmation three times with the tone.</p>`,
   opts:[[`Play ${c.hz} Hz`,()=>bowl(c.hz,7,.25)],["Hum the tone",()=>tone(c.hz,6,.12)],["Enter the Chakra Shrine",()=>{shrineSel=k;go("chakras")()}]]})}
 function hsClick(h){
@@ -759,7 +764,7 @@ function doors(){const h=ROOMS.map(([k,n,d])=>`<a class="door" href="#${k}"><svg
 /* sound */
 let note=CK[3];const BEATS=[["Off",0],["Delta 2 Hz · deep rest",2],["Theta 6 Hz · meditation",6],["Alpha 10 Hz · calm focus",10]],AMBS=[["Off",null],["Rain","rain"],["Ocean","ocean"],["Forest","forest"],["Om drone","om"]];
 let beatSel=0,ambSel=null,ripples=[];
-function soundUI(){$("#notes").innerHTML=CK.map(c=>`<button class="chip" data-note="${c.k}" aria-pressed="${note.k===c.k}"><span class="tag" style="background:${c.c};padding:0 7px">&nbsp;</span>${c.n} ${c.hz}</button>`).join("");
+function soundUI(){$("#oms").innerHTML=Object.entries(CHANTS).map(([k,v])=>`<button class="chip" data-om="${k}">${v[0]}</button>`).join("");$("#notes").innerHTML=CK.map(c=>`<button class="chip" data-note="${c.k}" aria-pressed="${note.k===c.k}"><span class="tag" style="background:${c.c};padding:0 7px">&nbsp;</span>${c.n} ${c.hz}</button>`).join("");
  $("#beats").innerHTML=BEATS.map(([l,v])=>`<button class="chip" data-beat="${v}" aria-pressed="${beatSel===v}">${l}</button>`).join("");
  $("#amb").innerHTML=AMBS.map(([l,v])=>`<button class="chip" data-amb="${v||""}" aria-pressed="${ambSel===v}">${l}</button>`).join("")}
 function strike(){bowl(note.hz,8,.3);ripples.push({r:20,c:note.c,l:1})}
@@ -812,7 +817,7 @@ function align(){if(aligning){clearTimeout(aligning);aligning=null;shrine();retu
 function sky(){const s=$("#sky"),L=store.get("lanterns",[]);s.innerHTML=Array.from({length:60},()=>`<i class="star" style="left:${Math.random()*100}%;top:${Math.random()*70}%;opacity:${.2+Math.random()*.7}"></i>`).join("")+L.map((l,i)=>`<div class="lan" title="${esc(l.t)}" style="left:${l.x}%;top:${l.y}%;animation-delay:-${i%6}s;transform:scale(${l.s})"></div>`).join("")+(L.length?"":`<p class="small" style="position:absolute;bottom:12px;left:0;right:0;text-align:center">The sky is waiting for your first lantern.</p>`)}
 function release(e){e.preventDefault();const t=$("#lanTxt").value.trim();if(!t)return;const L=store.get("lanterns",[]),l={t,x:8+Math.random()*84,y:6+Math.random()*55,s:(.7+Math.random()*.6).toFixed(2)};L.push(l);store.set("lanterns",L.slice(-40));bump("lanterns");$("#lanTxt").value="";sky();const el=$$("#sky .lan").pop();if(el&&!RM){el.classList.add("rise");setTimeout(()=>el.classList.remove("rise"),5100)}chime()}
 /* koans */
-function drawKoan(){const f=$("#fcard"),k=pick(KOANS);if(f.classList.contains("turned")){f.classList.remove("turned");setTimeout(()=>{$("#koanTxt").textContent=k;f.classList.add("turned")},RM?0:500)}else{$("#koanTxt").textContent=k;f.classList.add("turned")}bump("koans");if(!muted)bowl(528,3,.12)}
+function drawKoan(){const f=$("#fcard"),k=pick(KOANS);if(f.classList.contains("turned")){f.classList.remove("turned");setTimeout(()=>{$("#koanTxt").textContent=k;f.classList.add("turned")},RM?0:500)}else{$("#koanTxt").textContent=k;f.classList.add("turned")}bump("koans");if(!muted)bowl(528,3,.12);setTimeout(()=>speak(k),RM?0:700)}
 function journal(el){const J=store.get("journal",[]);$(el).innerHTML=J.length?J.slice().reverse().map(j=>`<div class="entry"><div class="small">${esc(j.d)} · ${esc(j.k)}</div><p style="margin:4px 0 0">${esc(j.t)}</p></div>`).join(""):`<div class="empty">Your reflections will appear here.</div>`}
 function saveRefl(){const t=$("#refl").value.trim();if(!t)return;const J=store.get("journal",[]);J.push({d:new Date().toLocaleDateString(),k:$("#koanTxt").textContent||"Free reflection",t});store.set("journal",J.slice(-50));$("#refl").value="";journal("#journal")}
 
@@ -838,7 +843,7 @@ const NAVOF={home:"home",den:"den",sound:"den",breath:"den",garden:"den",meditat
 function route(){const h=location.hash.slice(1),v=VIEWS.includes(h)?h:"home";
  VIEWS.forEach(k=>$("#v-"+k).hidden=k!==v);
  $$("nav a").forEach(a=>a.hash==="#"+NAVOF[v]?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
- if(v!=="breath"&&bTimer)breathStop(false);
+ if(v!=="breath"&&bTimer)breathStop(false);if(chanting&&v!=="home"&&v!=="sound")stopChant();hush();
  if(v==="discover")list();if(v==="my-zen")myzen();if(v==="home"){picks();requestAnimationFrame(size)}
  if(v==="sound"){soundUI();requestAnimationFrame(soundLoop)}if(v==="breath")breathUI();if(v==="garden"){toolsUI();requestAnimationFrame(sandInit)}
  if(v==="walk")walkOpen();else walkClose();if(v==="cosmos")cosmosOpen();
@@ -882,6 +887,7 @@ document.addEventListener("click",e=>{
  const c=e.target.closest("[data-f]");if(c){filt.f=c.dataset.f;list();return}
  const g=e.target.closest("[data-go]");if(g){filt.f=g.dataset.go;location.hash="discover";return}
  const n=e.target.closest("[data-note]");if(n){note=CK.find(x=>x.k===n.dataset.note);soundUI();strike();return}
+ const om=e.target.closest("[data-om]");if(om){chant(om.dataset.om);return}
  const bt=e.target.closest("[data-beat]");if(bt){beatSel=+bt.dataset.beat;binaural(beatSel);soundUI();return}
  const am=e.target.closest("[data-amb]");if(am){ambSel=am.dataset.amb||null;ambience(ambSel);soundUI();return}
  const pt=e.target.closest("[data-pat]");if(pt){if(bTimer)breathStop(false);pat=pt.dataset.pat;breathUI();return}
@@ -902,7 +908,7 @@ document.addEventListener("change",e=>{if(e.target.dataset.r!==undefined){const 
 $("#portal").addEventListener("click",e=>{if(e.target.id==="portal")closePortal()});
 $("#pClose").onclick=closePortal;
 $("#bowl").onclick=strike;
-$("#stopAll").onclick=()=>{ambience(null);binaural(0);beatSel=0;ambSel=null;soundUI()};
+$("#stopAll").onclick=()=>{stopChant();ambience(null);binaural(0);beatSel=0;ambSel=null;soundUI()};
 $("#vol").oninput=e=>{vol=+e.target.value;if(OUT&&!muted)OUT.gain.value=vol};
 $("#sndBtn").onclick=()=>{A();setMute(!muted)};
 $("#visionBtn").onclick=e=>{const on=stage.classList.toggle("vision");e.target.setAttribute("aria-pressed",on);if(on){CK.forEach((c,i)=>setTimeout(()=>burst(300,c.y,c.c,12),i*120));say("Chakra vision is open. Seven wheels of light, crown to root. Hover each one, then click to step through its portal.",[["Teach me",quote],["Back",()=>menu()]])}};
@@ -912,18 +918,74 @@ addEventListener("resize",()=>{if(!$("#v-garden").hidden&&gx){const img=null;san
 
 
 /* ================= voice + moving mouth ================= */
-let voiceOn=store.get("voice",true),speakUntil=0,mouthO=0,pulse=0,mouthRAF=0;
-function pickVoice(){const vs=speechSynthesis.getVoices();return vs.find(v=>/^en/i.test(v.lang)&&/Daniel|Arthur|Rishi|Aaron|Fred|Google UK English Male|Male/i.test(v.name))||vs.find(v=>/^en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))}
-if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=()=>{};
-function speak(t){if(!t)return;let dur=Math.min(14000,400+t.length*62);
- try{if(voiceOn&&!muted&&"speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.84;u.pitch=.6;u.volume=Math.min(1,vol+.3);const v=pickVoice();if(v)u.voice=v;u.onboundary=()=>{pulse=1};u.onstart=()=>{speakUntil=performance.now()+Math.max(dur,t.length*80)};u.onend=()=>{speakUntil=performance.now()+80};speechSynthesis.speak(u)}}catch(e){}
- speakUntil=performance.now()+dur;if(!mouthRAF)mouthRAF=requestAnimationFrame(mouthLoop)}
-function mouthLoop(now){const on=now<speakUntil;const target=on?.22+.78*Math.abs(Math.sin(now/68))*(.55+.45*Math.sin(now/210))+pulse*.35:0;pulse*=.86;mouthO+=(target-mouthO)*.4;const o=Math.min(1,mouthO);
+let voiceOn=store.get("voice",true),speakUntil=0,mouthO=0,mouthR=0,pulse=0,mouthRAF=0,VM=new Set(),VB={},vSrc=null,vAN=null,chantMouth=null;
+const vnorm=t=>String(t).replace(/\s+/g," ").trim(),vkey=t=>{let h=5381;const x=vnorm(t);for(let i=0;i<x.length;i++)h=((h<<5)+h+x.charCodeAt(i))>>>0;return h.toString(16)};
+fetch("voice/manifest.json").then(r=>r.ok?r.json():[]).then(a=>{VM=new Set(a)}).catch(()=>{});
+const GREETS=["The temple glows at night, and so do you.","Good morning, traveler. The bells are fresh.","Good afternoon, traveler. The sun is high over the temple.","Good evening, traveler. The lanterns are being lit.","The night is quiet, traveler. A good time to listen."];
+const STATIC_LINES=["Chakra vision is open. Seven wheels of light, crown to root. Hover each one, then click to step through its portal.","Seven touches… you have awakened all seven chakras! Enlightenment mode.","Sit with me. Four rounds of box breathing. Follow my light.","Slow down, friend. The river does not race the sea. Take one long breath with me.","Ah. You have returned. I was visiting the stars.","Any breath is a good breath. What next?","Beautiful. Notice how you feel. The temple is always here.","May it serve you. What next?","Breathe in","Hold","Breathe out","Say a word you wish to grow. Peace, courage, love. Then touch the next bead.","One full mala. One hundred and eight beads. Well done.","Chant with me. Choose your Om.","The vibration remains, even in silence. What next?","Close your eyes. Breathe in, and let the sound rise from your belly.","Welcome, seeker. Sit a while. The master is listening."];
+window.__fyzLines=()=>{const L=[...STATIC_LINES,...GREETS.map(g=>g+" What does your spirit seek?"),...QUOTES.map(q=>q[0]),...Q.map(q=>q.q),...KOANS,...CK.map(c=>c.af),...Object.values(F).flatMap(f=>[`I see it now. Your frequency is ${f.name}. ${f.line}`,f.ritual])];return [...new Set(L.map(vnorm))].map(t=>[vkey(t),t])};
+function pickVoice(){const vs=speechSynthesis.getVoices();return vs.find(v=>/^en/i.test(v.lang)&&/Natural|Neural|Enhanced|Premium/i.test(v.name)&&/Daniel|Guy|Ryan|Arthur|Oliver|Thomas|Christopher|Andrew|Brian|Male/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang)&&/Daniel|Arthur|Rishi|Aaron|Google UK English Male/i.test(v.name))||vs.find(v=>/^en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))}
+function hush(){try{if(vSrc){vSrc.onended=null;vSrc.stop()}}catch(e){}vSrc=null;try{"speechSynthesis" in window&&speechSynthesis.cancel()}catch(e){}}
+async function clip(k){if(VB[k])return VB[k];const r=await fetch(`voice/${k}.mp3`);if(!r.ok)throw 0;const ab=await r.arrayBuffer();return VB[k]=await A().decodeAudioData(ab)}
+function speak(t){if(!t)return;hush();const k=vkey(t),tok={};speak.tok=tok;
+ const fake=()=>{speakUntil=performance.now()+Math.min(14000,400+vnorm(t).length*62);startMouth()};
+ if(voiceOn&&!muted&&VM.has(k)&&AC&&AC.state==="running"){clip(k).then(buf=>{if(speak.tok!==tok)return;const src=AC.createBufferSource();src.buffer=buf;if(!vAN){vAN=AC.createAnalyser();vAN.fftSize=512}const g=AC.createGain();g.gain.value=1.15;src.connect(g);g.connect(vAN);g.connect(OUT);src.onended=()=>{if(vSrc===src){vSrc=null;speakUntil=0}};vSrc=src;src.start();speakUntil=performance.now()+buf.duration*1000+100;startMouth()}).catch(()=>{if(speak.tok===tok)tts(t,fake)});return}
+ if(VM.has(k)||!voiceOn||muted){fake();return}
+ tts(t,fake)}
+function tts(t,fake){fake();try{if(voiceOn&&!muted&&"speechSynthesis" in window){const u=new SpeechSynthesisUtterance(vnorm(t).replace(/…/g,"... "));u.rate=.8;u.pitch=.55;u.volume=Math.min(1,vol+.3);const v=pickVoice();if(v)u.voice=v;u.onboundary=()=>{pulse=1};u.onend=()=>{speakUntil=performance.now()+80};speechSynthesis.speak(u)}}catch(e){}}
+function startMouth(){if(!mouthRAF)mouthRAF=requestAnimationFrame(mouthLoop)}
+const td=new Uint8Array(512);
+function mouthLoop(now){let target=0,round=0;
+ if(chantMouth){const c=chantMouth();target=c[0];round=c[1]}
+ else if(vSrc&&vAN){vAN.getByteTimeDomainData(td);let s2=0;for(let i=0;i<td.length;i++){const v=(td[i]-128)/128;s2+=v*v}target=Math.min(1,Math.sqrt(s2/td.length)*7)}
+ else if(now<speakUntil){target=.22+.78*Math.abs(Math.sin(now/68))*(.55+.45*Math.sin(now/210))+pulse*.35;pulse*=.86}
+ mouthO+=(target-mouthO)*.45;mouthR+=(round-mouthR)*.3;const o=Math.min(1,mouthO);
  const mi=$("#mouthIn"),lp=$("#lip"),bd=$("#beard"),th=$("#teeth");
- if(mi){mi.setAttribute("ry",(.4+o*7.5).toFixed(2));mi.setAttribute("cy",(272+o*2.6).toFixed(2));mi.setAttribute("rx",(10-o*1.5).toFixed(2));lp.setAttribute("d",`M289 ${(274+o*9).toFixed(1)} Q300 ${(279+o*11).toFixed(1)} 311 ${(274+o*9).toFixed(1)}`);bd.setAttribute("transform",`translate(0 ${(o*5).toFixed(2)})`);th.setAttribute("opacity",o>.35?.8:0)}
- if(on||mouthO>.01)mouthRAF=requestAnimationFrame(mouthLoop);else{mouthRAF=0;mouthO=0}}
+ if(mi){mi.setAttribute("ry",(.4+o*7.5).toFixed(2));mi.setAttribute("cy",(272+o*2.6).toFixed(2));mi.setAttribute("rx",(10-o*1.5-mouthR*4).toFixed(2));lp.setAttribute("d",`M${289+mouthR*3} ${(274+o*9).toFixed(1)} Q300 ${(279+o*11).toFixed(1)} ${311-mouthR*3} ${(274+o*9).toFixed(1)}`);bd.setAttribute("transform",`translate(0 ${(o*5).toFixed(2)})`);th.setAttribute("opacity",o>.35&&mouthR<.5?.8:0)}
+ if(chantMouth||vSrc||now<speakUntil||mouthO>.01)mouthRAF=requestAnimationFrame(mouthLoop);else{mouthRAF=0;mouthO=0}}
 function voiceUI(){const b=$("#voiceBtn");b.setAttribute("aria-pressed",voiceOn);b.textContent=voiceOn?"Voice on":"Voice off"}
-$("#voiceBtn").onclick=()=>{voiceOn=!voiceOn;store.set("voice",voiceOn);voiceUI();if(!voiceOn&&"speechSynthesis" in window)speechSynthesis.cancel();else speak($("#say").textContent)};
+$("#voiceBtn").onclick=()=>{A();voiceOn=!voiceOn;store.set("voice",voiceOn);voiceUI();if(!voiceOn)hush();else speak($("#say").dataset.spoken||$("#say").textContent)};
+
+/* ================= Om chants ================= */
+const FORM={a:[[730,1],[1090,.5],[2440,.22]],o:[[570,1],[840,.45],[2410,.18]],u:[[320,1],[870,.3],[2240,.12]],m:[[250,1],[1000,.08],[2200,.03]],i:[[300,1],[2200,.35],[3000,.15]],e:[[480,1],[1800,.4],[2500,.18]],n:[[260,1],[1500,.06],[2500,.03]]};
+const MOUTH={a:[1,0],o:[.6,.8],u:[.35,1],m:[0,0],i:[.4,0],e:[.55,0],n:[.05,0],x:[0,0],h:[.5,.3]};
+let RV=null;function reverb(){if(RV)return RV;const c=A(),len=c.sampleRate*4.5,ir=c.createBuffer(2,len,c.sampleRate);for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2)}const cv2=c.createConvolver();cv2.buffer=ir;const w=c.createGain();w.gain.value=.55;cv2.connect(w);w.connect(OUT);return RV=cv2}
+let chantNodes=[],chantTimers=[],chantSched=[];
+function chantVoice(f,t0,segs,o={}){const c=A(),rv=reverb(),dry=c.createGain(),env=c.createGain(),mix=c.createGain(),nasal=c.createBiquadFilter();dry.gain.value=.8;nasal.type="lowpass";nasal.frequency.value=4800;mix.gain.value=.5;
+ const total=segs.reduce((s,x)=>s+x[1],0),T1=t0+total;
+ const lfo=c.createOscillator(),lg=c.createGain();lfo.frequency.value=4.8+Math.random()*.6;lg.gain.setValueAtTime(0,t0);lg.gain.linearRampToValueAtTime(f*.007,t0+1.6);lfo.connect(lg);lfo.start(t0);lfo.stop(T1+1.5);chantNodes.push(lfo);
+ const voices=(o.choir?[-9,-3,4,10]:[-4,4]).map(d=>[f,d,o.choir?.22:.35]).concat([[f/2,0,o.deep?.45:.18]]);
+ voices.forEach(([fr,dt,gn])=>{const os=c.createOscillator(),g=c.createGain();os.type="sawtooth";os.frequency.value=fr;os.detune.value=dt;g.gain.value=gn;lg.connect(os.frequency);os.connect(g);g.connect(mix);os.start(t0);os.stop(T1+1.5);chantNodes.push(os)});
+ const sum=c.createGain();sum.gain.value=1;
+ const fs=[0,1,2].map(i=>{const bp=c.createBiquadFilter(),g=c.createGain();bp.type="bandpass";bp.Q.value=i?12:6;mix.connect(bp);bp.connect(g);g.connect(sum);return[bp,g]});
+ if(o.throat){const bp=c.createBiquadFilter(),g=c.createGain();bp.type="bandpass";bp.Q.value=40;g.gain.value=2.2;bp.frequency.setValueAtTime(f*12,t0);for(let k=1;k<8;k++)bp.frequency.linearRampToValueAtTime(f*(10+((k*7)%7)),t0+k*total/8);mix.connect(bp);bp.connect(g);g.connect(sum)}
+ sum.connect(nasal);nasal.connect(env);env.connect(dry);dry.connect(OUT);env.connect(rv);
+ env.gain.setValueAtTime(.0001,t0);env.gain.exponentialRampToValueAtTime(.32*(o.gain||1),t0+.35);
+ let t=t0;segs.forEach(([v,d])=>{const F2=FORM[v==="x"||v==="h"?"a":v];
+  fs.forEach(([bp,g],i)=>{bp.frequency.linearRampToValueAtTime(F2[i][0]*(o.deep?.88:1),t+.12);g.gain.linearRampToValueAtTime(F2[i][1],t+.12)});
+  nasal.frequency.linearRampToValueAtTime(v==="m"||v==="n"?420:4800,t+.12);
+  if(v==="x"){env.gain.linearRampToValueAtTime(.02,t+.04);env.gain.linearRampToValueAtTime(.3*(o.gain||1),t+d)}
+  if(v==="h"){const n=noiseSrc("white"),nf=c.createBiquadFilter(),ng=c.createGain();nf.type="bandpass";nf.frequency.value=1800;ng.gain.setValueAtTime(.0001,t);ng.gain.exponentialRampToValueAtTime(.08,t+.03);ng.gain.exponentialRampToValueAtTime(.0001,t+d);n.connect(nf);nf.connect(ng);ng.connect(OUT);n.start(t);n.stop(t+d+.05)}
+  chantSched.push([t,v]);t+=d});
+ env.gain.setValueAtTime(.3*(o.gain||1),T1-.05);env.gain.exponentialRampToValueAtTime(.0001,T1+1.3);chantSched.push([T1,"x"]);return T1+1.3}
+const AUM=d=>[["a",d*.3],["u",d*.25],["m",d*.45]];
+const MANI=(r)=>[["o",.9*r],["m",.7*r],["x",.12],["a",.55*r],["n",.12],["i",.55*r],["x",.1],["a",.55*r],["x",.06],["m",.12],["e",.55*r],["h",.12],["u",.6*r],["m",1.1*r],["x",.5]];
+const CHANTS={
+ sacred:["Sacred Om","One long Om at 136.1 Hz, the tone of the Earth's year.",c=>chantVoice(136.1,c+.2,AUM(9))],
+ three:["Three Oms","Three Oms with a breath between each.",c=>{let t=c+.2;for(let i=0;i<3;i++)t=chantVoice(136.1,t,AUM(6))+.6;return t}],
+ monk:["Deep Monk Om","A low throat-chant with whistling overtones, like the Himalayan monasteries.",c=>chantVoice(66,c+.2,AUM(11),{deep:1,throat:1,gain:1.2})],
+ sangha:["Sangha Om","A temple full of voices chanting together.",c=>chantVoice(110,c+.2,AUM(9),{choir:1,gain:1.1})],
+ mani:["Om Mani Padme Hum","The six-syllable mantra of compassion, three times.",c=>{let t=c+.2;for(let i=0;i<3;i++)t=chantVoice(110,t,MANI(1),{choir:1})-1;return t+1}],
+ ascent:["Chakra Om ascent","Seven Oms rising from root to crown. Each chakra lights up.",c=>{let t=c+.2;CK.forEach((k,i)=>{const s=t;chantTimers.push(setTimeout(()=>{$$(".ck").forEach(e=>e.classList.toggle("on",e.dataset.ck===k.k));tune(k.c);burst(300,k.y,k.c,22);if(!muted)bowl(k.hz,4,.07)},(s-c)*1000));t=chantVoice(k.hz/4,t,AUM(4.6),{gain:.9})-.6});return t+.6}]
+};
+let chanting=false;
+function chant(id){if(chanting)stopChant();const c=A();hush();chanting=true;busy=true;mode="med";setLids(1);$("#stage").classList.add("deep");$("#aura").style.transform="scale(1.2)";chantSched=[];
+ const ch=CHANTS[id],end=ch[2](c.currentTime);
+ say(`${ch[0]}… ${ch[1]}`,[["Stop",()=>{stopChant();menu("The vibration remains, even in silence. What next?")}]],"",true);
+ chantMouth=()=>{const now=AC.currentTime;let v="x";for(const[tt,vv]of chantSched){if(tt<=now)v=vv;else break}const m=MOUTH[v]||[0,0];return[m[0]*(.85+.15*Math.sin(now*9)),m[1]]};startMouth();
+ chantTimers.push(setTimeout(()=>{stopChant();burst();menu("The vibration remains, even in silence. What next?")},(end-c.currentTime)*1000))}
+function stopChant(){chantTimers.forEach(clearTimeout);chantTimers=[];chantNodes.forEach(n=>{try{n.stop()}catch(e){}});chantNodes=[];chantSched=[];chantMouth=null;chanting=false;busy=false;setLids(lidBase);$("#stage").classList.remove("deep");$("#aura").style.transform="";$$(".ck.on").forEach(e=>e.classList.remove("on"));tune()}
+function chantMenu(){say("Chant with me. Choose your Om.",Object.entries(CHANTS).map(([k,v])=>[v[0],()=>chant(k)]).concat([["Back",()=>menu()]]))}
 
 /* ================= 3D temple walk ================= */
 const WALKCOL={sound:"#3a8fe0",breath:"#4fb487",garden:"#e9dfc8",meditate:"#f2b632",chakras:"#b45ad6",lantern:"#f2a03b",koan:"#f6dc8f",cosmos:"#6a4fd0"};

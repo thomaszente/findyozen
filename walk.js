@@ -129,10 +129,30 @@ export function createTemple({ el, rooms, masterSVG, onEnter, reducedMotion }) {
   const ku = e => { keys[e.key.toLowerCase()] = false; };
   addEventListener("keydown", kd); addEventListener("keyup", ku);
   const cv = renderer.domElement; cv.style.touchAction = "none";
-  cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); const r = cv.getBoundingClientRect(); drag = { id: e.pointerId, x: e.clientX, y: e.clientY, move: e.pointerType === "touch" && e.clientX - r.left < r.width / 2 }; });
-  cv.addEventListener("pointermove", e => { if (!drag || drag.id !== e.pointerId) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (drag.move) { joy = { x: Math.max(-1, Math.min(1, dx / 60)), y: Math.max(-1, Math.min(1, dy / 60)) }; } else { yaw -= dx * .005; pitch = Math.max(.05, Math.min(1.1, pitch + dy * .004)); drag.x = e.clientX; drag.y = e.clientY; } });
-  const up = () => { drag = null; joy = { x: 0, y: 0 }; };
-  cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+  // tap or click the floor to walk there; drag to look around
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(); let target = null;
+  const marker = new THREE.Mesh(new THREE.RingGeometry(.25, .38, 32), new THREE.MeshBasicMaterial({ color: 0xf6dc8f, transparent: true, opacity: .9, side: THREE.DoubleSide }));
+  marker.rotation.x = -Math.PI / 2; marker.visible = false; scene.add(marker);
+  cv.addEventListener("pointerdown", e => { try { cv.setPointerCapture(e.pointerId); } catch (x) {} drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now() }; });
+  cv.addEventListener("pointermove", e => { if (!drag || drag.id !== e.pointerId) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; yaw -= dx * .005; pitch = Math.max(.05, Math.min(1.1, pitch + dy * .004)); drag.x = e.clientX; drag.y = e.clientY; });
+  cv.addEventListener("pointerup", e => {
+    if (drag && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 10 && performance.now() - drag.t < 400) {
+      const r = cv.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera);
+      const hit = ray.intersectObject(floor)[0];
+      if (hit) { target = hit.point.clone(); target.y = 0; marker.position.set(target.x, .03, target.z); marker.visible = true; }
+    }
+    drag = null;
+  });
+  cv.addEventListener("pointercancel", () => { drag = null; });
+  // on-screen joystick
+  const pad = document.createElement("div"), knob = document.createElement("div");
+  pad.className = "joy"; knob.className = "knob"; pad.appendChild(knob); pad.setAttribute("aria-label", "Walk joystick"); el.appendChild(pad);
+  let jid = null;
+  const jmove = e => { const r = pad.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2; let x = (e.clientX - cx) / (r.width / 2), y = (e.clientY - cy) / (r.height / 2); const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; } joy = { x, y }; knob.style.transform = `translate(${x * 34}px, ${y * 34}px)`; target = null; marker.visible = false; };
+  pad.addEventListener("pointerdown", e => { e.preventDefault(); jid = e.pointerId; try { pad.setPointerCapture(e.pointerId); } catch (x) {} jmove(e); });
+  pad.addEventListener("pointermove", e => { if (e.pointerId === jid) jmove(e); });
+  const jend = () => { jid = null; joy = { x: 0, y: 0 }; knob.style.transform = ""; };
+  pad.addEventListener("pointerup", jend); pad.addEventListener("pointercancel", jend);
   const ro = new ResizeObserver(() => { renderer.setSize(W(), H()); camera.aspect = W() / H(); camera.updateProjectionMatrix(); }); ro.observe(el);
 
   /* ---------- loop ---------- */
@@ -142,6 +162,9 @@ export function createTemple({ el, rooms, masterSVG, onEnter, reducedMotion }) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     let f = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0) - joy.y, s = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + joy.x;
     if (keys.arrowleft || keys.q) yaw += 1.8 * dt; if (keys.arrowright) yaw -= 1.8 * dt;
+    if (f || s) { target = null; marker.visible = false; }
+    if (target) { const dx = target.x - avatar.position.x, dz = target.z - avatar.position.z, d = Math.hypot(dx, dz); if (d < .3) { target = null; marker.visible = false; } else { const fx = dx / d, fz = dz / d; f = fx * Math.sin(yaw) + fz * Math.cos(yaw); s = -(fx * Math.cos(yaw) - fz * Math.sin(yaw)); } }
+    if (marker.visible) marker.scale.setScalar(1 + Math.sin(now / 150) * .12);
     const speed = keys.shift ? 7 : 4.2, mv = new THREE.Vector3(Math.sin(yaw) * f + Math.cos(yaw) * -s, 0, Math.cos(yaw) * f - Math.sin(yaw) * -s);
     if (mv.lengthSq() > .01) {
       mv.normalize().multiplyScalar(speed * dt); avatar.position.add(mv);
