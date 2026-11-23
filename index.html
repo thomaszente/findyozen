@@ -563,6 +563,9 @@ let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
 
 /* ================= audio ================= */
 let AC=null,OUT=null,AN=null,muted=false,vol=.7;const live={};
+let unlocked=false;const SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=";
+function unlockAudio(){try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}A();if(!unlocked){unlocked=true;try{const el=new Audio(SILENT);el.setAttribute("playsinline","");el.play().catch(()=>{})}catch(e){}try{const b=AC.createBuffer(1,1,22050),s=AC.createBufferSource();s.buffer=b;s.connect(AC.destination);s.start(0)}catch(e){}}}
+["pointerdown","touchend","click","keydown"].forEach(t=>document.addEventListener(t,unlockAudio,{capture:true,passive:true}));
 function A(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();OUT=AC.createGain();OUT.gain.value=muted?0:vol;AN=AC.createAnalyser();AN.fftSize=256;OUT.connect(AN);AN.connect(AC.destination)}if(AC.state==="suspended")AC.resume();return AC}
 function env(g,t0,a,peak,d){g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(peak,t0+a);g.gain.exponentialRampToValueAtTime(0.0001,t0+a+d)}
 function bowl(f,dur=7,amp=.3){const c=A(),t=c.currentTime;[[1,1],[2.76,.45],[5.4,.22],[8.9,.1]].forEach(([p,a])=>{[0,.8].forEach(det=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f*p+det;env(g,t,.008,amp*a*.5,dur/p**.3);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+.1)})})}
@@ -929,7 +932,7 @@ function hush(){try{if(vSrc){vSrc.onended=null;vSrc.stop()}}catch(e){}vSrc=null;
 async function clip(k){if(VB[k])return VB[k];const r=await fetch(`voice/${k}.mp3`);if(!r.ok)throw 0;const ab=await r.arrayBuffer();return VB[k]=await A().decodeAudioData(ab)}
 function speak(t){if(!t)return;hush();const k=vkey(t),tok={};speak.tok=tok;
  const fake=()=>{speakUntil=performance.now()+Math.min(14000,400+vnorm(t).length*62);startMouth()};
- if(voiceOn&&!muted&&VM.has(k)&&AC&&AC.state==="running"){clip(k).then(buf=>{if(speak.tok!==tok)return;const src=AC.createBufferSource();src.buffer=buf;if(!vAN){vAN=AC.createAnalyser();vAN.fftSize=512}const g=AC.createGain();g.gain.value=1.15;src.connect(g);g.connect(vAN);g.connect(OUT);src.onended=()=>{if(vSrc===src){vSrc=null;speakUntil=0}};vSrc=src;src.start();speakUntil=performance.now()+buf.duration*1000+100;startMouth()}).catch(()=>{if(speak.tok===tok)tts(t,fake)});return}
+ if(voiceOn&&!muted&&VM.has(k)&&AC){(AC.state==="running"?Promise.resolve():AC.resume()).then(()=>clip(k)).then(buf=>{if(AC.state!=="running"){fake();return}if(speak.tok!==tok)return;const src=AC.createBufferSource();src.buffer=buf;if(!vAN){vAN=AC.createAnalyser();vAN.fftSize=512}const g=AC.createGain();g.gain.value=1.15;src.connect(g);g.connect(vAN);g.connect(OUT);src.onended=()=>{if(vSrc===src){vSrc=null;speakUntil=0}};vSrc=src;src.start();speakUntil=performance.now()+buf.duration*1000+100;startMouth()}).catch(()=>{if(speak.tok===tok)tts(t,fake)});return}
  if(VM.has(k)||!voiceOn||muted){fake();return}
  tts(t,fake)}
 function tts(t,fake){fake();try{if(voiceOn&&!muted&&"speechSynthesis" in window){const u=new SpeechSynthesisUtterance(vnorm(t).replace(/…/g,"... "));u.rate=.8;u.pitch=.55;u.volume=Math.min(1,vol+.3);const v=pickVoice();if(v)u.voice=v;u.onboundary=()=>{pulse=1};u.onend=()=>{speakUntil=performance.now()+80};speechSynthesis.speak(u)}}catch(e){}}
