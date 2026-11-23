@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find Yo Zen</title>
+<meta name="description" content="Meet the Zen master, enter his temple, and find your frequency.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: mystical, warm, a little playful; an old master with a sense of humour
+   IDEA: a hidden jungle temple, part ancient, part future, with rooms for each practice
+   PICTURE: a lit, sculpted Zen master on a cushion before a vine-wrapped gold gate; chakra points glow under the cursor
+   COLOUR and TYPE: jungle night green, temple gold, saffron and maroon robes, chakra jewels; Cinzel + Nunito Sans
+   LAYOUT: master and his speech first; Zen Den rooms, frequencies and Austin spots follow */
+:root{color-scheme:dark;--bg:#09120e;--bg2:#0f1c16;--card:#12211a;--ink:#f3ead4;--soft:#b9b29d;
+ --gold:#d9b45a;--gold2:#f6dc8f;--jade:#4fb487;--line:rgba(217,180,90,.28);
+ --calm:#8fb8ff;--glow:#ff8a5c;--move:#f2b632;--connect:#f07fb6;--wild:#4fc08d;--tune:var(--gold2)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Nunito Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.brand,nav a,.btn,.chip,.who{font-family:Cinzel,Georgia,serif}
+h1{font-size:clamp(28px,4.4vw,44px);line-height:1.05;margin:0 0 8px;color:var(--gold2)}
+h2{font-size:clamp(24px,3.2vw,32px);line-height:1.15;margin:0 0 12px;color:var(--gold2);text-wrap:balance}
+h3{font-size:19px;margin:0 0 4px;line-height:1.25;color:var(--gold2)}
+p{margin:0 0 12px;max-width:64ch}a{color:var(--gold2)}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px)}.wrap{max-width:1180px;margin:0 auto}
+header{position:sticky;top:0;z-index:20;background:rgba(9,18,14,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+header .wrap{max-width:calc(1180px + 2 * max(5vw,16px));display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px max(5vw,16px)}
+.brand{font-weight:700;font-size:20px;text-decoration:none;color:var(--gold2);display:flex;align-items:center;gap:8px;margin-right:auto}
+.brand svg{width:30px;height:30px}
+nav{display:flex;gap:2px;flex-wrap:wrap}
+nav a{text-decoration:none;color:var(--ink);padding:10px 12px;border-radius:999px;font-weight:600;font-size:14px;min-height:44px;display:flex;align-items:center}
+nav a[aria-current=page]{background:var(--gold);color:#1b1408}
+.snd{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--gold2);cursor:pointer;display:grid;place-items:center}
+.snd svg{width:20px;height:20px}
+.btn{border:1px solid var(--gold);border-radius:999px;padding:11px 20px;min-height:44px;font-size:15px;font-weight:600;cursor:pointer;background:var(--gold);color:#1b1408}
+.btn.alt{background:transparent;color:var(--gold2)}
+.btn:hover{box-shadow:0 0 18px rgba(246,220,143,.45)}
+:focus-visible{outline:3px solid var(--gold2);outline-offset:2px}
+.temple{background:radial-gradient(ellipse at 40% 35%,#1b3527 0%,var(--bg) 70%);border-bottom:1px solid var(--line)}
+.temple .wrap{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(16px,3vw,44px);align-items:center}
+.stage{position:relative;width:100%;max-width:620px;aspect-ratio:600/640;justify-self:center;touch-action:manipulation}
+.stage svg,.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.stage canvas{pointer-events:none}
+.tip{position:absolute;pointer-events:none;background:rgba(9,18,14,.92);border:1px solid var(--gold);color:var(--ink);padding:6px 12px;border-radius:12px;font-size:14px;white-space:nowrap;transform:translate(-50%,-130%);opacity:0;transition:opacity .2s;z-index:3}
+.tip b{color:var(--gold2);font-family:Cinzel,serif}
+.hot{cursor:pointer}
+.ck .ring{opacity:0;transition:opacity .3s}.ck .core{opacity:0;transition:opacity .3s,r .3s}
+#master:hover .ck .core,.vision .ck .core{opacity:.55}
+.vision .ck .ring{opacity:.5}
+.ck:hover .core,.ck.on .core{opacity:1}.ck:hover .ring,.ck.on .ring{opacity:1}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 140s linear infinite}
+.spin.rev{animation-duration:90s;animation-direction:reverse}
+.float{animation:float 7s ease-in-out infinite}
+.deep .float{animation:floatHi 7s ease-in-out infinite}
+.breathe{animation:breathe 6s ease-in-out infinite}
+.sway{transform-box:fill-box;transform-origin:top center;animation:sway 7s ease-in-out infinite}
+.sway.b{animation-delay:-3s;animation-duration:9s}
+.ray{animation:ray 8s ease-in-out infinite}
+#aura{transform-box:fill-box;transform-origin:center;transition:transform 4s ease-in-out}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{50%{transform:translateY(-8px)}}
+@keyframes floatHi{0%,100%{transform:translateY(-14px)}50%{transform:translateY(-30px)}}
+@keyframes breathe{50%{transform:translateY(-3px)}}
+@keyframes sway{50%{transform:rotate(4deg)}}
+@keyframes ray{50%{opacity:.35}}
+.rainbow #aura{animation:hue 1.2s linear infinite}
+@keyframes hue{to{filter:hue-rotate(360deg)}}
+.bubble{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,var(--gold2),var(--jade)) border-box;border:1px solid transparent;border-radius:24px;padding:20px 22px;box-shadow:0 0 40px rgba(79,180,135,.12)}
+.who{font-size:13px;color:var(--gold);font-weight:600}
+#say{font-size:19px;line-height:1.5;min-height:3em;margin:6px 0 4px}
+#cite{font-size:14px;color:var(--soft);margin:0 0 12px;min-height:1em}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1px solid var(--line);background:rgba(217,180,90,.08);color:var(--ink);border-radius:999px;padding:9px 15px;min-height:44px;font:600 15px "Nunito Sans",sans-serif;cursor:pointer;text-align:left}
+.opt:hover,.opt[aria-pressed=true]{border-color:var(--gold2);background:rgba(217,180,90,.2)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:14px;color:var(--soft)}
+.legend b{color:var(--gold2);font-weight:700}
+/* portal */
+.portal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(4,8,6,.78);backdrop-filter:blur(3px);padding:16px}
+.vortex{position:absolute;width:min(92vmin,680px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 0deg,var(--pc),transparent 18%,var(--gold2) 30%,transparent 45%,var(--pc) 60%,transparent 75%,var(--gold2) 88%,var(--pc));-webkit-mask:radial-gradient(circle,transparent 34%,#000 36%,#000 60%,transparent 71%);mask:radial-gradient(circle,transparent 34%,#000 36%,#000 60%,transparent 71%);animation:spin 5s linear infinite,open .6s ease-out;filter:blur(1px)}
+.vortex.two{width:min(70vmin,520px);animation-direction:reverse;animation-duration:8s;opacity:.7}
+@keyframes open{from{transform:scale(.1) rotate(0);opacity:0}}
+.pcard{position:relative;max-width:440px;width:100%;background:rgba(14,26,20,.94);border:1px solid var(--pc);border-radius:24px;padding:24px;box-shadow:0 0 60px var(--pc);animation:pop .5s ease-out;max-height:86vh;overflow:auto}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.pcard .sk{font-size:14px;color:var(--soft)}
+.pclose{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--ink);font-size:22px;cursor:pointer}
+/* lists */
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.door{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:18px 14px 16px;border-radius:120px 120px 18px 18px;border:1px solid var(--line);background:linear-gradient(#152a20,#0d1913);color:var(--ink);text-decoration:none;transition:transform .3s,box-shadow .3s,border-color .3s}
+.door:hover{transform:translateY(-4px);border-color:var(--gold2);box-shadow:0 0 30px rgba(246,220,143,.25)}
+.door svg{width:84px;height:84px}
+.door b{font-family:Cinzel,serif;color:var(--gold2);font-size:17px}
+.door span{font-size:14px;color:var(--soft)}
+.freqs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.freq{border:1px solid var(--line);border-radius:20px;padding:16px;background:var(--card);cursor:pointer;text-align:left;color:var(--ink);font:inherit}
+.freq:hover{border-color:var(--gold2)}
+.freq .dot{width:30px;height:30px;border-radius:50%;margin-bottom:8px;box-shadow:0 0 18px currentColor}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;color:#14100a;margin:0 4px 4px 0;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.card .meta{font-size:14px;color:var(--soft)}
+.card .row{display:flex;gap:8px;margin-top:auto;padding-top:8px;align-items:center}
+.card .row a{font-weight:700;font-size:15px}
+.heart{margin-left:auto;border:0;background:none;cursor:pointer;width:44px;height:44px;border-radius:50%;color:var(--soft)}
+.heart[aria-pressed=true]{color:var(--connect)}.heart svg{width:24px;height:24px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;font-size:14px;font-weight:600;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--gold);color:#1b1408;border-color:var(--gold)}
+input,select,textarea{font:16px "Nunito Sans",sans-serif;padding:10px 14px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-height:44px}
+input[type=search]{flex:1 1 220px;border-radius:999px}
+input[type=range]{accent-color:var(--gold);padding:0;border:0;background:none}
+textarea{width:100%;min-height:110px;resize:vertical}
+.tiers{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.tier{border:1px dashed var(--line);border-radius:18px;padding:16px}
+.tier b{font-family:Cinzel,serif;color:var(--gold2);font-size:17px;display:block}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:start}
+.room-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.back{font-size:14px;text-decoration:none}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px}
+.lbl{font:600 13px Cinzel,serif;color:var(--gold);margin:16px 0 8px}
+/* sound */
+.bowlbox{position:relative;display:grid;place-items:center;min-height:320px}
+#bowlCv{position:absolute;inset:0;width:100%;height:100%}
+#bowl{position:relative;width:min(300px,80%);cursor:pointer;transition:transform .15s}
+#bowl:active{transform:scale(.97)}
+/* breath */
+.orbwrap{display:grid;place-items:center;min-height:340px;position:relative}
+.orb{width:120px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7d6,var(--gold2) 30%,var(--jade) 75%,transparent 76%);box-shadow:0 0 60px rgba(246,220,143,.45);transition-property:transform;transition-timing-function:ease-in-out}
+.orbtxt{position:absolute;text-align:center;font:600 24px Cinzel,serif;color:var(--gold2);bottom:8px;left:0;right:0}
+/* garden */
+#sand{width:100%;aspect-ratio:16/10;border-radius:18px;border:6px solid #3a2a18;touch-action:none;cursor:crosshair;display:block;background:#e9dfc8}
+/* meditate */
+.timer{position:relative;width:min(320px,90%);aspect-ratio:1;margin:0 auto}
+.timer svg{width:100%;height:100%}
+.timer .t{position:absolute;inset:0;display:grid;place-items:center;font:700 42px Cinzel,serif;color:var(--gold2)}
+.flame{transform-origin:50% 90%;transform-box:fill-box;animation:flick .18s ease-in-out infinite alternate}
+@keyframes flick{to{transform:scale(1.04,.96) skewX(2deg)}}
+/* chakras */
+.shrine{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:24px;align-items:center}
+.shrine svg{width:100%;max-width:360px;margin:auto;display:block}
+.cnode{cursor:pointer}.cnode circle{transition:r .3s,opacity .3s}
+.cnode.on .halo{opacity:.9}
+/* lanterns */
+.sky{position:relative;height:420px;border-radius:22px;overflow:hidden;background:radial-gradient(ellipse at 50% 120%,#1d3b2a,#08110c 70%);border:1px solid var(--line)}
+.lan{position:absolute;width:34px;height:44px;border-radius:12px 12px 8px 8px;background:radial-gradient(circle at 50% 60%,#fff1b8,#f2a03b 55%,#b9551d);box-shadow:0 0 24px #f2a03b;animation:drift 6s ease-in-out infinite}
+.lan.rise{animation:rise 5s ease-out forwards}
+@keyframes drift{50%{transform:translateY(-10px) rotate(2deg)}}
+@keyframes rise{from{top:100%}}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.7}
+/* koan */
+.flip{perspective:900px;max-width:520px}
+.fcard{position:relative;min-height:220px;transform-style:preserve-3d;transition:transform .8s}
+.fcard.turned{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;border:1px solid var(--gold);display:grid;place-items:center;text-align:center;padding:24px;background:linear-gradient(160deg,#1a3125,#0d1913)}
+.face.front{transform:rotateY(180deg)}
+.face p{font:600 clamp(20px,3vw,26px)/1.4 Cinzel,serif;color:var(--gold2);margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center}
+.stat b{display:block;font:700 32px Cinzel,serif;color:var(--gold2)}
+.ritual{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer;font-weight:600;min-height:44px}
+.ritual input{width:22px;height:22px;min-height:0;accent-color:var(--jade)}
+.result{border-left:4px solid var(--tune);padding-left:16px}
+.empty{color:var(--soft);padding:20px;border:1px dashed var(--line);border-radius:18px}
+.small{font-size:14px;color:var(--soft)}
+.entry{border-bottom:1px solid var(--line);padding:10px 0}
+footer{border-top:1px solid var(--line)}
+[hidden]{display:none!important}
+@media(max-width:860px){.temple .wrap,.two,.shrine{grid-template-columns:minmax(0,1fr)}.stage{max-width:460px}}
+@media(max-width:600px){nav a{padding:10px 8px;font-size:13px}#say{font-size:17px}}
+@media(prefers-reduced-motion:reduce){.spin,.float,.deep .float,.breathe,.sway,.ray,.vortex,.lan,.flame,.rainbow #aura{animation:none}#aura,.fcard{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+ <a class="brand" href="#home"><svg viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="none" stroke="#d9b45a" stroke-width="1.5"/><path d="M15 6c3 4 3 8 0 12-3-4-3-8 0-12z M6 17c4 0 7 2 9 6-4 0-7-2-9-6z M24 17c-4 0-7 2-9 6 4 0 7-2 9-6z" fill="#f6dc8f"/></svg>Find Yo Zen</a>
+ <nav><a href="#home">Temple</a><a href="#den">Zen Den</a><a href="#discover">Discover</a><a href="#my-zen">My Zen</a></nav>
+ <button class="snd" id="sndBtn" aria-label="Sound on" aria-pressed="true"></button>
+</div></header>
+
+<main>
+<!-- TEMPLE -->
+<section id="v-home">
+ <div class="band temple"><div class="wrap">
+  <div class="stage" id="stage">
+   <svg id="scene" viewBox="0 0 600 640" role="img" aria-label="An elder Zen master meditating on a cushion before a vine-covered golden temple gate"></svg>
+   <canvas id="fx" aria-hidden="true"></canvas>
+   <div class="tip" id="tip"></div>
+  </div>
+  <div>
+   <h1>The Zen Master</h1>
+   <div class="bubble" aria-live="polite">
+    <div class="who">Zen speaks</div>
+    <p id="say">…</p><p id="cite"></p>
+    <div class="opts" id="opts"></div>
+   </div>
+   <div class="legend">
+    <span>Click him: <b>a new teaching</b></span><span>Crown to root: <b>7 chakra portals</b></span><span>Mala: <b>count beads</b></span><span>Hands: <b>breath</b></span><span>Ears: <b>sound</b></span><span>Cushion: <b>sit</b></span>
+   </div>
+   <p style="margin-top:12px"><button class="btn alt" id="visionBtn" aria-pressed="false">Chakra vision</button> <a class="btn" href="#den" style="text-decoration:none;display:inline-flex;align-items:center">Enter his temple</a></p>
+  </div>
+ </div></div>
+
+ <div class="band"><div class="wrap">
+  <h2>The Zen Den</h2>
+  <p>Step through a door. Each room holds a different practice.</p>
+  <div class="rooms" id="roomsHome"></div>
+ </div></div>
+
+ <div class="band" style="padding-top:0"><div class="wrap">
+  <h2>The five frequencies</h2>
+  <p>Every mood has a place to go in Austin. Pick one, or let the master read yours.</p>
+  <div class="freqs" id="freqs"></div>
+ </div></div>
+
+ <div class="band" style="padding-top:0"><div class="wrap">
+  <h2 id="picksTitle">Where the master would start</h2>
+  <div class="grid" id="picks"></div>
+ </div></div>
+
+ <div class="band" style="background:var(--bg2)"><div class="wrap">
+  <h2>Coming next</h2>
+  <div class="tiers">
+   <div class="tier"><b>Plus</b>Deeper rituals, member perks and early event access.</div>
+   <div class="tier"><b>Zen Explorers</b>Partner studios, bathhouses and healers with special offers.</div>
+   <div class="tier"><b>Events</b>Sound baths, dances and full-moon gatherings in one calendar.</div>
+   <div class="tier"><b>Teams</b>Wellness days and offsites for your crew.</div>
+   <div class="tier"><b>Creators</b>Facilitators and artists sharing their own journeys.</div>
+  </div>
+ </div></div>
+</section>
+
+<!-- DEN -->
+<section id="v-den" class="band" hidden><div class="wrap">
+ <h2>The Zen Den</h2>
+ <p>Seven rooms inside the master's temple. Sound works best with headphones.</p>
+ <div class="rooms" id="roomsDen"></div>
+</div></section>
+
+<!-- SOUND -->
+<section id="v-sound" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Sound Chamber</h2>
+ <div class="two">
+  <div class="panel bowlbox"><canvas id="bowlCv"></canvas>
+   <svg id="bowl" viewBox="0 0 300 200" role="button" tabindex="0" aria-label="Strike the singing bowl">
+    <defs><linearGradient id="bz" x1="0" x2="1"><stop offset="0" stop-color="#5a3a14"/><stop offset=".35" stop-color="#e2b25a"/><stop offset=".55" stop-color="#f6dc8f"/><stop offset="1" stop-color="#6b4416"/></linearGradient></defs>
+    <ellipse cx="150" cy="186" rx="110" ry="10" fill="#000" opacity=".4"/>
+    <path d="M30 70 Q40 180 150 182 Q260 180 270 70Z" fill="url(#bz)"/>
+    <ellipse cx="150" cy="70" rx="120" ry="24" fill="#3b2408" stroke="#f6dc8f" stroke-width="4"/>
+    <ellipse cx="150" cy="74" rx="104" ry="17" fill="#1e1205"/>
+    <path d="M60 110 Q150 130 240 110" stroke="#5a3a14" stroke-width="2" fill="none" opacity=".6"/>
+   </svg>
+  </div>
+  <div>
+   <p>Strike the bowl. Each note is tuned to a chakra frequency.</p>
+   <div class="lbl">Bowl note</div><div class="filters" id="notes"></div>
+   <div class="lbl">Binaural beats (headphones)</div><div class="filters" id="beats"></div>
+   <div class="lbl">Ambience</div><div class="filters" id="amb"></div>
+   <div class="lbl">Volume</div><input type="range" id="vol" min="0" max="1" step="0.01" value="0.7" aria-label="Volume" style="width:100%">
+   <p style="margin-top:14px"><button class="btn alt" id="stopAll">Stop all sound</button></p>
+  </div>
+ </div>
+</div></section>
+
+<!-- BREATH -->
+<section id="v-breath" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Breath Hall</h2>
+ <div class="two">
+  <div class="panel orbwrap"><div class="orb" id="orb2"></div><div class="orbtxt" id="orbTxt">Choose a breath</div></div>
+  <div>
+   <div class="lbl">Pattern</div><div class="filters" id="patterns"></div>
+   <p id="patDesc"></p>
+   <div class="lbl">Rounds</div>
+   <select id="rounds" aria-label="Rounds"><option>4</option><option selected>6</option><option>10</option></select>
+   <label style="margin-left:12px"><input type="checkbox" id="breathTone" checked style="min-height:0;width:20px;height:20px;vertical-align:middle"> Guide tone</label>
+   <p style="margin-top:14px"><button class="btn" id="breathGo">Begin</button></p>
+  </div>
+ </div>
+</div></section>
+
+<!-- GARDEN -->
+<section id="v-garden" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Zen Garden</h2>
+ <div class="filters" id="tools"></div>
+ <canvas id="sand" aria-label="Sand garden. Drag to rake, tap to place stones."></canvas>
+ <p class="small" style="margin-top:10px">Drag to rake. Tap with Stone or Ripple to place. Nothing here is permanent, and that is the point.</p>
+</div></section>
+
+<!-- MEDITATE -->
+<section id="v-meditate" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Meditation Room</h2>
+ <div class="two">
+  <div class="timer">
+   <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(217,180,90,.2)" stroke-width="6"/><circle id="ring" cx="100" cy="100" r="90" fill="none" stroke="#f6dc8f" stroke-width="6" stroke-linecap="round" stroke-dasharray="565.5" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+    <g transform="translate(100 128)"><rect x="-9" y="0" width="18" height="34" rx="3" fill="#efe3c8"/><path class="flame" d="M0 -26 C8 -14 8 -4 0 0 C-8 -4 -8 -14 0 -26Z" fill="#f6b13b"/><path class="flame" d="M0 -16 C4 -9 4 -3 0 -1 C-4 -3 -4 -9 0 -16Z" fill="#fff3c4"/></g></svg>
+   <div class="t" id="tLeft">5:00</div>
+  </div>
+  <div>
+   <div class="lbl">Minutes</div><div class="filters" id="mins"></div>
+   <div class="lbl">Ambience</div><div class="filters" id="mAmb"></div>
+   <p style="margin-top:14px"><button class="btn" id="medGo">Begin</button></p>
+   <p class="small">A gong opens and closes your sit. Minutes are added to My Zen.</p>
+  </div>
+ </div>
+</div></section>
+
+<!-- CHAKRAS -->
+<section id="v-chakras" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Chakra Shrine</h2>
+ <div class="shrine">
+  <svg id="shrineSvg" viewBox="0 0 300 440" aria-label="Seven chakras on a meditating figure"></svg>
+  <div class="panel" id="ckPanel"></div>
+ </div>
+ <p class="small" style="margin-top:14px">Chakra frequencies come from contemplative tradition. Use them to relax, not as medical treatment.</p>
+</div></section>
+
+<!-- LANTERN -->
+<section id="v-lantern" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Lantern Garden</h2>
+ <div class="sky" id="sky"></div>
+ <form id="lanForm" class="filters" style="margin-top:14px">
+  <input id="lanTxt" maxlength="80" placeholder="Write an intention to release…" aria-label="Intention" style="flex:1 1 260px;border-radius:999px">
+  <button class="btn">Release lantern</button>
+ </form>
+</div></section>
+
+<!-- KOAN -->
+<section id="v-koan" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Koan Room</h2>
+ <div class="two">
+  <div>
+   <div class="flip"><div class="fcard" id="fcard"><div class="face back"><p>Draw a koan</p></div><div class="face front"><p id="koanTxt"></p></div></div></div>
+   <p style="margin-top:14px"><button class="btn" id="drawKoan">Draw a koan</button></p>
+   <p class="small">A koan is a riddle with no logical answer. Sit with it. Notice what arises.</p>
+  </div>
+  <div>
+   <div class="lbl">Your reflection</div>
+   <textarea id="refl" placeholder="What comes up?"></textarea>
+   <p style="margin-top:10px"><button class="btn alt" id="saveRefl">Save to journal</button></p>
+   <div id="journal"></div>
+  </div>
+ </div>
+</div></section>
+
+<!-- DISCOVER -->
+<section id="v-discover" class="band" hidden><div class="wrap">
+ <h2>Discover Austin</h2>
+ <div class="filters">
+  <input type="search" id="q" placeholder="Search sauna, sound bath, sunset…" aria-label="Search spots">
+  <select id="price" aria-label="Budget"><option value="">Any budget</option><option value="0">Free</option><option value="1">$</option><option value="2">$$</option><option value="3">$$$</option></select>
+  <select id="setting" aria-label="Setting"><option value="">Indoor or outdoor</option><option>Indoor</option><option>Outdoor</option></select>
+ </div>
+ <div class="filters" id="freqChips"></div>
+ <p class="small" id="count"></p>
+ <div class="grid" id="list"></div>
+</div></section>
+
+<!-- MY ZEN -->
+<section id="v-my-zen" class="band" hidden><div class="wrap">
+ <h2>My Zen</h2>
+ <div class="stats" id="stats"></div>
+ <div class="two" style="margin-top:24px">
+  <div><div id="myFreq"></div>
+   <h3 style="margin-top:20px">Today's rituals</h3><p class="small">Tick three or more to keep your streak glowing.</p><div id="rituals"></div></div>
+  <div><h3>Journal</h3><div id="myJournal"></div></div>
+ </div>
+ <h3 style="margin:32px 0 12px">Saved spots</h3>
+ <div class="grid" id="saved"></div>
+ <p class="small" style="margin-top:18px">Everything here stays in this browser. No account needed.</p>
+</div></section>
+</main>
+
+<div class="portal" id="portal" hidden role="dialog" aria-modal="true" aria-labelledby="pTitle">
+ <div class="vortex"></div><div class="vortex two"></div>
+ <div class="pcard"><button class="pclose" id="pClose" aria-label="Close portal">×</button><div class="sk" id="pSk"></div><h2 id="pTitle"></h2><div id="pBody"></div><div class="opts" id="pOpts"></div></div>
+</div>
+
+<footer class="band"><div class="wrap small">
+ <p><b style="font-family:Cinzel,serif;color:var(--gold2)">Find Yo Zen</b> · Austin, TX</p>
+ <p>Wellness experiences, not medical advice. Spots, hours and prices change, so check before you go. Listings are curated, never paid for.</p>
+</div></footer>
+
+<script>
+{
+/* ================= data ================= */
+const F={
+ calm:{name:"Low Tide",word:"Calm",line:"Your spirit wants quiet. Slow sound, soft light, long exhales.",ritual:"Lie down with headphones, breathe in four counts and out six, ten times. Then rest in silence."},
+ glow:{name:"Hot & Cold",word:"Glow",line:"You need a reset you can feel. Heat, cold, water, repeat.",ritual:"End your next shower with 30 seconds of cold water, then breathe slowly for a minute."},
+ move:{name:"Pulse",word:"Move",line:"Energy is stuck. Shake it loose on a mat or a dance floor.",ritual:"Play three songs you love and dance alone in your kitchen. No rules."},
+ connect:{name:"Tribe",word:"Connect",line:"You are craving people. Find a room full of good humans.",ritual:"Text one friend an invite to a spot on this list for this week."},
+ wild:{name:"Wild Signal",word:"Wild",line:"Too much screen. Water, trees and sky are calling.",ritual:"Walk twenty minutes outside with your phone on airplane mode."}
+};
+const S=[
+ ["Barton Springs Pool","Zilker","Spring-fed pool that stays cool all year. A cold plunge with trees, Austin's original reset.",["wild","glow"],1,"Outdoor"],
+ ["Bathe","East Austin","Social bathhouse with Finnish, wood-fired and infrared saunas, cold plunges and soaks, plus yoga and sound sessions.",["glow","connect"],3,"Outdoor"],
+ ["Ceremony Social Spa","South Lamar","Cedar saunas and cold plunges in a shady courtyard, plus massage. Old Austin bathhouse feel.",["glow","calm"],2,"Outdoor"],
+ ["Mantle Thermal Haus","East Austin","Sauna, natural-stone cold plunge, fire-lit lounge and a red-light recovery room.",["glow"],3,"Indoor"],
+ ["Gevity","North Central","Restorative sound baths, contrast therapy and recovery spaces under one roof.",["calm","glow"],2,"Indoor"],
+ ["Casa de Luz","Zilker","Community hub for sound bath meditations, gatherings and plant-based meals.",["calm","connect"],1,"Indoor"],
+ ["Austin Salt Cave","South Austin","Salt therapy rooms with breath and sound sessions. Very low lights, very slow pace.",["calm"],2,"Indoor"],
+ ["Austin Ecstatic Dance Center","South Austin","Substance-free dance space hosting several ecstatic dances a week. Move to express, not impress.",["move","connect"],1,"Indoor"],
+ ["Austin Ecstatic Rhythms","North Austin","Austin's long-running Sunday morning ecstatic dance. Sliding-scale entry.",["move","connect"],1,"Indoor"],
+ ["Flow Yoga 3rd Eye","Zilker","Breathwork, kundalini, gong sessions and evening ecstatic dances.",["move","calm"],2,"Indoor"],
+ ["Sanctuary Studio & Loft","Bouldin Creek","Small studio hosting breathwork and sound journeys.",["calm"],2,"Indoor"],
+ ["Austin Zen Center","Hyde Park","Zen meditation sittings open to newcomers. Sit still with others.",["calm","connect"],0,"Indoor"],
+ ["Hotel Magdalena","South Congress","Hotel that hosts sound bath and yoga events.",["calm"],2,"Outdoor"],
+ ["Zilker Botanical Garden","Zilker","Japanese garden, koi ponds and quiet paths right by downtown.",["wild","calm"],1,"Outdoor"],
+ ["Butler Trail at Lady Bird Lake","Downtown","Ten-mile loop around the lake. Walk, run or just watch the water.",["wild","move"],0,"Outdoor"],
+ ["Mount Bonnell","West Austin","Short climb to one of the city's best sunset views over the river.",["wild"],0,"Outdoor"],
+ ["McKinney Falls State Park","Southeast Austin","Waterfalls, limestone pools and shady trails inside city limits.",["wild","move"],1,"Outdoor"],
+ ["Laguna Gloria","West Austin","Lakeside sculpture garden. Slow walk, big trees, art in the grass.",["wild","calm"],1,"Outdoor"]
+].map(([n,area,d,f,p,set])=>({id:n.toLowerCase().replace(/[^a-z0-9]+/g,"-"),n,area,d,f,p,set}));
+const Q=[
+ {q:"Close your eyes for one breath. How does your energy feel?",a:[["Wired and buzzy",{calm:2}],["Flat and drained",{glow:2,move:1}],["Restless",{move:2}],["A little lonely",{connect:2}],["Screen-fried",{wild:2}]]},
+ {q:"If your soul had a soundtrack right now, what would it be?",a:[["Rain on a roof",{calm:1}],["Drums at sunrise",{move:1}],["A crackling fire",{glow:1}],["Friends laughing",{connect:1}],["Birds and wind",{wild:1}]]},
+ {q:"Who walks this path with you?",a:[["Just me",{calm:1,wild:1}],["A friend or two",{glow:1,wild:1}],["The whole tribe",{connect:1,move:1}]]},
+ {q:"And how much time do the stars give you?",a:[["Ten minutes",{calm:1}],["An hour or two",{glow:1,move:1}],["Half a day",{wild:1,connect:1}]]}
+];
+const QUOTES=[
+ ["Before enlightenment, chop wood, carry water. After enlightenment, chop wood, carry water.","Zen proverb"],
+ ["Nature does not hurry, yet everything is accomplished.","Lao Tzu"],
+ ["The journey of a thousand miles begins beneath your feet.","Lao Tzu"],
+ ["Knowing others is intelligence. Knowing yourself is true wisdom.","Lao Tzu"],
+ ["When walking, walk. When eating, eat.","Zen proverb"],
+ ["Let go, or be dragged.","Zen proverb"],
+ ["No snowflake ever falls in the wrong place.","Zen saying"],
+ ["Fall seven times, stand up eight.","Japanese proverb"],
+ ["Sit. Walk. Don't wobble.","Yunmen"],
+ ["A jug fills drop by drop.","The Buddha"],
+ ["Peace comes from within. Do not seek it without.","Attributed to the Buddha"],
+ ["The mind is everything. What you think, you become.","Attributed to the Buddha"],
+ ["Do not dwell in the past. Do not dream of the future. Rest in this moment.","Attributed to the Buddha"],
+ ["Empty your cup, so that it may be filled.","Zen teaching"],
+ ["The obstacle is the path.","Zen proverb"],
+ ["When the student is ready, the teacher appears.","Proverb"],
+ ["Muddy water, left alone, becomes clear.","Zen saying"],
+ ["The bamboo that bends is stronger than the oak that resists.","Japanese proverb"],
+ ["Wherever you go, there your breath is. Begin there.","The master"],
+ ["The vines do not hurry, and still they reach the light.","The master"],
+ ["Drink water. Ancient wisdom, very practical.","The master"],
+ ["The moon is not full every night, and it is still the moon.","The master"]
+];
+const KOANS=["What is the sound of one hand clapping?","What was your original face before your parents were born?","Does a dog have Buddha-nature? Mu.","If a tree falls in an empty forest, who hears the silence after?","Where does your fist go when you open your hand?","The flag is not moving. The wind is not moving. What is moving?","Show me the one who is reading this.","What remains when the breath has gone out and not yet come in?"];
+const CK=[
+ {k:"root",n:"Root",s:"Muladhara",c:"#e5483f",hz:396,loc:"Base of the spine",el:"Earth",th:"Safety, grounding, belonging",af:"I am safe. I am grounded. I belong here.",y:552},
+ {k:"sacral",n:"Sacral",s:"Svadhisthana",c:"#f38a2a",hz:417,loc:"Lower belly",el:"Water",th:"Creativity, pleasure, flow",af:"I flow with life and let joy move through me.",y:508},
+ {k:"solar",n:"Solar Plexus",s:"Manipura",c:"#f5cf2e",hz:528,loc:"Upper belly",el:"Fire",th:"Will, confidence, inner fire",af:"I stand in my power with a warm heart.",y:430},
+ {k:"heart",n:"Heart",s:"Anahata",c:"#46b35d",hz:639,loc:"Center of the chest",el:"Air",th:"Love, compassion, forgiveness",af:"I give and receive love freely.",y:392},
+ {k:"throat",n:"Throat",s:"Vishuddha",c:"#3a8fe0",hz:741,loc:"Throat",el:"Sound",th:"Truth, expression, listening",af:"I speak my truth with kindness.",y:300},
+ {k:"third",n:"Third Eye",s:"Ajna",c:"#6a4fd0",hz:852,loc:"Between the brows",el:"Light",th:"Intuition, insight, imagination",af:"I trust the wisdom I see within.",y:192},
+ {k:"crown",n:"Crown",s:"Sahasrara",c:"#b45ad6",hz:963,loc:"Top of the head",el:"Cosmos",th:"Connection, stillness, awareness",af:"I am connected to all that is.",y:140}
+];
+const ROOMS=[
+ ["sound","Sound Chamber","Singing bowls, chakra tones and binaural beats."],
+ ["breath","Breath Hall","Guided breathing to calm or awaken."],
+ ["garden","Zen Garden","Rake the sand, place stones, clear the mind."],
+ ["meditate","Meditation Room","Candle, gong and a timer that holds you."],
+ ["chakras","Chakra Shrine","Seven energy centers, their tones and affirmations."],
+ ["lantern","Lantern Garden","Write an intention and release it to the sky."],
+ ["koan","Koan Room","Ancient riddles to sit with, and a journal."]
+];
+const ICON={
+ sound:`<ellipse cx="42" cy="60" rx="28" ry="6" fill="none"/><path d="M14 46 Q18 66 42 66 Q66 66 70 46Z"/><ellipse cx="42" cy="46" rx="28" ry="6"/><path d="M22 30 Q42 20 62 30 M28 22 Q42 14 56 22" opacity=".7"/>`,
+ breath:`<circle cx="42" cy="42" r="10"/><circle cx="42" cy="42" r="20" opacity=".6"/><circle cx="42" cy="42" r="30" opacity=".3"/>`,
+ garden:`<path d="M10 30 Q42 22 74 30 M10 40 Q42 32 74 40 M10 50 Q42 42 74 50 M10 60 Q42 52 74 60"/><ellipse cx="54" cy="44" rx="9" ry="6" fill="currentColor"/>`,
+ meditate:`<path d="M42 18 C48 28 48 34 42 38 C36 34 36 28 42 18Z" fill="currentColor"/><rect x="34" y="40" width="16" height="28" rx="2"/>`,
+ chakras:`${[16,26,36,46,56,66].map(y=>`<circle cx="42" cy="${y}" r="4" fill="currentColor"/>`).join("")}<circle cx="42" cy="9" r="4"/>`,
+ lantern:`<path d="M30 30 Q42 24 54 30 L56 58 Q42 64 28 58Z"/><path d="M36 64 v6 M48 64 v6 M42 14 v12"/>`,
+ koan:`<path d="M20 20 h44 v44 h-44z"/><path d="M28 32 h28 M28 42 h28 M28 52 h18"/>`
+};
+const RIT=["Breathe for one minute","Move your body","Drink a big glass of water","Get outside","Unplug for 30 minutes"];
+
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store={get(k,d){try{const v=localStorage.getItem("fyz-"+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem("fyz-"+k,JSON.stringify(v))}catch(e){}}};
+const stats=store.get("stats",{minutes:0,beads:0,lanterns:0,koans:0,portals:0});
+const bump=(k,n=1)=>{stats[k]=(stats[k]||0)+n;store.set("stats",stats)};
+let saved=store.get("saved",[]),myF=store.get("freq",null),filt={f:""};
+const price=p=>p?"$".repeat(p):"Free";
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const heart='<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.3 5 6.8 5c2 0 3.6 1.1 5.2 3 1.6-1.9 3.2-3 5.2-3 3.5 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21z" fill="currentColor"/></svg>';
+const card=s=>`<article class="card"><div>${s.f.map(f=>`<span class="tag" style="background:var(--${f})">${F[f].word}</span>`).join("")}</div><h3>${esc(s.n)}</h3><div class="meta">${esc(s.area)} · ${price(s.p)} · ${s.set}</div><p>${esc(s.d)}</p><div class="row"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.n+" Austin TX")}" target="_blank" rel="noopener">Directions</a><button class="heart" data-save="${s.id}" aria-pressed="${saved.includes(s.id)}" aria-label="Save ${esc(s.n)}">${heart}</button></div></article>`;
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+
+/* ================= audio ================= */
+let AC=null,OUT=null,AN=null,muted=false,vol=.7;const live={};
+function A(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();OUT=AC.createGain();OUT.gain.value=muted?0:vol;AN=AC.createAnalyser();AN.fftSize=256;OUT.connect(AN);AN.connect(AC.destination)}if(AC.state==="suspended")AC.resume();return AC}
+function env(g,t0,a,peak,d){g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(peak,t0+a);g.gain.exponentialRampToValueAtTime(0.0001,t0+a+d)}
+function bowl(f,dur=7,amp=.3){const c=A(),t=c.currentTime;[[1,1],[2.76,.45],[5.4,.22],[8.9,.1]].forEach(([p,a])=>{[0,.8].forEach(det=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f*p+det;env(g,t,.008,amp*a*.5,dur/p**.3);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+.1)})})}
+function gong(){const c=A(),t=c.currentTime;[[1,1],[1.48,.6],[2.1,.45],[2.9,.3],[3.7,.2],[5.2,.1]].forEach(([p,a])=>{const o=c.createOscillator(),g=c.createGain();o.frequency.value=82*p;env(g,t,.02,.35*a,9);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+9.2)});
+ const n=noiseSrc("white"),f=c.createBiquadFilter(),g=c.createGain();f.type="lowpass";f.frequency.value=900;env(g,t,.005,.25,1.2);n.connect(f);f.connect(g);g.connect(OUT);n.start(t);n.stop(t+1.4)}
+function tone(f,dur=3,amp=.18,type="sine"){const c=A(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(amp,t+.4);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+.05)}
+function chime(){const c=A();[1318,1760,2093].forEach((f,i)=>setTimeout(()=>bowl(f,1.8,.12),i*90))}
+let NB={};function noiseSrc(kind){const c=A();if(!NB[kind]){const len=c.sampleRate*4,b=c.createBuffer(1,len,c.sampleRate),d=b.getChannelData(0);let last=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;if(kind==="brown"){last=(last+.02*w)/1.02;d[i]=last*3.5}else d[i]=w}NB[kind]=b}const s=c.createBufferSource();s.buffer=NB[kind];s.loop=true;return s}
+function ambience(kind){stopLive("amb");if(!kind)return;const c=A(),g=c.createGain(),nodes=[];let src;
+ if(kind==="rain"){src=noiseSrc("white");const hp=c.createBiquadFilter(),lp=c.createBiquadFilter();hp.type="highpass";hp.frequency.value=900;lp.type="lowpass";lp.frequency.value=7000;src.connect(hp);hp.connect(lp);lp.connect(g);g.gain.value=.07}
+ else if(kind==="ocean"){src=noiseSrc("brown");const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=600;src.connect(lp);lp.connect(g);g.gain.value=.25;const l=c.createOscillator(),lg=c.createGain();l.frequency.value=.09;lg.gain.value=.2;l.connect(lg);lg.connect(g.gain);l.start();nodes.push(l)}
+ else if(kind==="forest"){src=noiseSrc("brown");const bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=400;src.connect(bp);bp.connect(g);g.gain.value=.3;const it=setInterval(()=>{if(Math.random()<.5)tone(2400+Math.random()*1600,.25,.03,"sine")},700);nodes.push({stop:()=>clearInterval(it)})}
+ else if(kind==="om"){src=c.createOscillator();src.frequency.value=136.1;const s2=c.createOscillator();s2.frequency.value=272.2;const g2=c.createGain();g2.gain.value=.3;s2.connect(g2);g2.connect(g);s2.start();nodes.push(s2);src.connect(g);g.gain.value=.08}
+ g.connect(OUT);src.start();nodes.push(src);live.amb=nodes}
+function binaural(beat){stopLive("bin");if(!beat)return;const c=A(),nodes=[];[[-1,200],[1,200+beat]].forEach(([pan,f])=>{const o=c.createOscillator(),p=c.createStereoPanner(),g=c.createGain();o.frequency.value=f;p.pan.value=pan;g.gain.value=.12;o.connect(g);g.connect(p);p.connect(OUT);o.start();nodes.push(o)});live.bin=nodes}
+function stopLive(k){(live[k]||[]).forEach(n=>{try{n.stop()}catch(e){}});delete live[k]}
+function setMute(m){muted=m;if(OUT)OUT.gain.value=m?0:vol;$("#sndBtn").setAttribute("aria-pressed",!m);$("#sndBtn").setAttribute("aria-label",m?"Sound off":"Sound on");
+ $("#sndBtn").innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/>${m?'<path d="M17 9l5 6M22 9l-5 6"/>':'<path d="M16 8a5 5 0 010 8M19 5a9 9 0 010 14"/>'}</svg>`}
+
+/* ================= the master ================= */
+const G="#d9b45a",G2="#f6dc8f";
+function gate(){
+ const leaf=(x,y,r,s=1,c="#3f9a62")=>`<path transform="translate(${x} ${y}) rotate(${r}) scale(${s})" d="M0 0 Q9 -7 18 0 Q9 7 0 0Z" fill="${c}"/>`;
+ const bloom=(x,y,c)=>`<g transform="translate(${x} ${y})">${[0,72,144,216,288].map(a=>`<circle cx="${(Math.cos(a*Math.PI/180)*4).toFixed(1)}" cy="${(Math.sin(a*Math.PI/180)*4).toFixed(1)}" r="3.2" fill="${c}"/>`).join("")}<circle r="2.2" fill="${G2}"/></g>`;
+ const vine=(cx,dir)=>{let d=`M${cx} 610`,lv="";for(let y=610;y>=150;y-=6){const x=cx+18*Math.sin(y/28)*dir;d+=` L${x.toFixed(1)} ${y}`;if(y%24===0)lv+=leaf(x.toFixed(1),y,(y/24)%2?-150:-30,.9+((y/6)%3)*.15,(y/24)%3?"#3f9a62":"#2f7a4c");if(y%96===0)lv+=bloom((x+8*dir).toFixed(1),y-6,y%192?"#f07fb6":"#f3ead4")}return `<path d="${d}" fill="none" stroke="#2c6b45" stroke-width="3"/>${lv}`};
+ const y0=x=>{const t=(x-300)/210;return 150-85*(1-t*t)};
+ const hang=(x,len,cls)=>{let lv="";for(let y=12;y<len;y+=16)lv+=leaf(x,(y+y0(x)).toFixed(1),y%32?20:160,.8);return `<g class="sway ${cls}"><path d="M${x} ${y0(x).toFixed(1)} q6 ${len/2} 0 ${len}" stroke="#2c6b45" stroke-width="2" fill="none"/>${lv}${bloom(x,(y0(x)+len).toFixed(1),"#f07fb6")}</g>`};
+ const ticks=Array.from({length:72},(_,i)=>{const a=i*5*Math.PI/180,r1=i%6?206:196,f=v=>v.toFixed(1);return `<line x1="${f(300+Math.cos(a)*r1)}" y1="${f(300+Math.sin(a)*r1)}" x2="${f(300+Math.cos(a)*212)}" y2="${f(300+Math.sin(a)*212)}" stroke="${G}" stroke-width="${i%6?1:2}"/>`}).join("");
+ const glyphs=Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;return `<g transform="translate(${(300+Math.cos(a)*182).toFixed(1)} ${(300+Math.sin(a)*182).toFixed(1)}) rotate(${i*30+90})" stroke="${G2}" fill="none" stroke-width="1.4"><circle r="6"/>${i%2?'<path d="M0 -6 V6 M-6 0 H6"/>':'<path d="M-5 4 L0 -5 L5 4Z"/>'}</g>`}).join("");
+ const pillar=x=>`<rect x="${x}" y="170" width="54" height="430" fill="#13241c" stroke="${G}" stroke-width="2"/>`+[0,1,2,3,4,5,6,7].map(i=>`<line x1="${x}" x2="${x+54}" y1="${200+i*52}" y2="${200+i*52}" stroke="${G}" opacity=".5"/><circle cx="${x+27}" cy="${226+i*52}" r="3" fill="${G2}" opacity="${i%2?.9:.4}"/>`).join("")+`<path d="M${x+27} 190 V585" stroke="${G}" stroke-dasharray="2 8" opacity=".6"/>`;
+ return `<g class="ray">${[-70,-30,10,50].map(d=>`<polygon points="300,40 ${270+d},620 ${330+d},620" fill="url(#rayg)" opacity=".45"/>`).join("")}</g>
+ <g class="spin">${ticks}<circle cx="300" cy="300" r="212" fill="none" stroke="${G}" opacity=".5"/></g>
+ <g class="spin rev">${glyphs}<circle cx="300" cy="300" r="168" fill="none" stroke="${G}" stroke-dasharray="1 9" stroke-width="2"/></g>
+ <path d="M80 175 L80 150 Q300 -20 520 150 L520 175" fill="none" stroke="${G}" stroke-width="4"/>
+ <path d="M96 172 Q300 10 504 172" fill="none" stroke="${G}" stroke-width="1.5" opacity=".7"/>
+ <path d="M300 22 l10 18 h-20z" fill="${G2}"/><circle cx="300" cy="62" r="8" fill="none" stroke="${G2}" stroke-width="2"/>
+ ${pillar(84)}${pillar(462)}
+ <rect x="50" y="600" width="500" height="14" fill="#13241c" stroke="${G}"/><rect x="30" y="614" width="540" height="18" fill="#13241c" stroke="${G}"/>
+ ${vine(100,1)}${vine(500,-1)}${hang(160,90,"")}${hang(210,60,"b")}${hang(390,70,"")}${hang(440,100,"b")}`;
+}
+function hair(n,fn,cols,w){let s="";for(let i=0;i<n;i++){const[x1,y1,cx,cy,x2,y2]=fn(i,n);s+=`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="${cols[i%cols.length]}" stroke-width="${(w[0]+rnd()*(w[1]-w[0])).toFixed(2)}" fill="none" stroke-linecap="round" opacity="${(.6+rnd()*.4).toFixed(2)}"/>`}return s}
+function eye(x,y,id){return `<clipPath id="c${id}"><path d="M${x-14} ${y} Q${x} ${y-9} ${x+14} ${y} Q${x} ${y+7} ${x-14} ${y}Z"/></clipPath>
+ <ellipse cx="${x}" cy="${y-1}" rx="17" ry="9" fill="#5a331c" opacity=".45" filter="url(#b2)"/>
+ <g clip-path="url(#c${id})"><path d="M${x-14} ${y} Q${x} ${y-9} ${x+14} ${y} Q${x} ${y+7} ${x-14} ${y}Z" fill="#eadccb"/>
+  <g class="iris"><circle cx="${x}" cy="${y}" r="5.6" fill="#3b2412"/><circle cx="${x}" cy="${y}" r="2.6" fill="#120904"/><circle cx="${x-1.6}" cy="${y-1.8}" r="1.3" fill="#fff" opacity=".9"/></g>
+  <path class="lid" fill="url(#lidG)"/></g>
+ <path class="lash" stroke="#3a2214" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+ <path d="M${x-13} ${y+5} Q${x} ${y+10} ${x+13} ${y+5}" stroke="#7a4a2c" stroke-width="1" fill="none" opacity=".45"/>`}
+function master(){
+ seed=11;
+ const beads=Array.from({length:34},(_,i)=>{const t=i/33,x=(1-t)**2*258+2*(1-t)*t*300+t*t*342,y=(1-t)**2*300+2*(1-t)*t*470+t*t*300;return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.4" fill="url(#bead)" data-b="${i}"/>`}).join("");
+ const beard=hair(52,(i,n)=>{const t=i/(n-1),sx=264+72*t,sy=262+20*Math.sin(Math.PI*t),ex=300+(sx-300)*.32+(rnd()-.5)*12,ey=334+44*Math.sin(Math.PI*t)+(rnd()-.5)*14;return[sx,sy,(sx+ex)/2+(sx-300)*.25,(sy+ey)/2,ex,ey]},["#f6f2e8","#e4ddcf","#cbc2b0","#fffaf0"],[1,2.2]);
+ const must=hair(26,(i)=>{const sd=i%2?1:-1,r=rnd();return[300+sd*3,257+r*2,300+sd*18,258+r*3,300+sd*(26+r*10),280+r*10]},["#f6f2e8","#ddd5c6"],[1.2,2]);
+ const brow=hair(22,(i)=>{const sd=i%2?1:-1,r=rnd();return[300+sd*(10+r*4),203+r*2,300+sd*30,197+r*3,300+sd*(44+r*10),214+r*8]},["#f6f2e8","#d9d1c2"],[1,1.8]);
+ const cks=CK.map(c=>`<g class="ck hot" data-ck="${c.k}" transform="translate(300 ${c.y})"><circle r="15" fill="transparent"/><circle class="ring" r="15" fill="none" stroke="${c.c}" stroke-width="2"/><circle class="core" r="7" fill="${c.c}" filter="url(#glow)"/></g>`).join("");
+ return `<defs>
+  <radialGradient id="auraG"><stop offset="0" stop-color="var(--tune)" stop-opacity=".7"/><stop offset=".5" stop-color="var(--tune)" stop-opacity=".16"/><stop offset="1" stop-color="var(--tune)" stop-opacity="0"/></radialGradient>
+  <linearGradient id="rayg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${G2}" stop-opacity=".32"/><stop offset="1" stop-color="${G2}" stop-opacity="0"/></linearGradient>
+  <radialGradient id="skinH" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#f2cda2"/><stop offset=".5" stop-color="#cf9463"/><stop offset="1" stop-color="#7d4a2a"/></radialGradient>
+  <linearGradient id="skinB" x1="0" x2="1"><stop offset="0" stop-color="#8a5532"/><stop offset=".45" stop-color="#d79f70"/><stop offset="1" stop-color="#7d4a2a"/></linearGradient>
+  <linearGradient id="lidG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c88d5d"/><stop offset="1" stop-color="#a86d42"/></linearGradient>
+  <linearGradient id="robeS" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eb9a3a"/><stop offset=".5" stop-color="#c2641b"/><stop offset="1" stop-color="#6e300b"/></linearGradient>
+  <linearGradient id="robeM" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a83434"/><stop offset=".55" stop-color="#6e1a1a"/><stop offset="1" stop-color="#360a0a"/></linearGradient>
+  <radialGradient id="bead" cx=".35" cy=".3"><stop offset="0" stop-color="#c99060"/><stop offset=".6" stop-color="#5a3218"/><stop offset="1" stop-color="#2a150a"/></radialGradient>
+  <radialGradient id="cush" cx=".5" cy=".3"><stop offset="0" stop-color="#6e2424"/><stop offset="1" stop-color="#2a0b0b"/></radialGradient>
+  <filter id="b2"><feGaussianBlur stdDeviation="2"/></filter><filter id="b6"><feGaussianBlur stdDeviation="6"/></filter>
+  <filter id="glow" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="3" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="rim" x="-.2" y="-.2" width="1.4" height="1.4"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="${G2}" flood-opacity=".35"/></filter>
+ </defs>
+ <g id="back">${gate()}</g>
+ <g id="mid"><circle id="aura" cx="300" cy="300" r="230" fill="url(#auraG)"/><circle cx="300" cy="218" r="98" fill="none" stroke="${G2}" stroke-width="1.5" opacity=".55"/><circle cx="300" cy="218" r="106" fill="none" stroke="${G}" stroke-width=".8" stroke-dasharray="3 6" opacity=".6"/></g>
+ <g id="front"><g class="float"><g id="master" filter="url(#rim)">
+  <ellipse cx="300" cy="618" rx="190" ry="16" fill="#000" opacity=".55" filter="url(#b6)"/>
+  <g class="hot" data-hs="cushion"><ellipse cx="300" cy="592" rx="172" ry="30" fill="url(#cush)"/><ellipse cx="300" cy="578" rx="166" ry="22" fill="#5c1d1d"/><path d="M150 584 Q300 604 450 584" stroke="${G}" stroke-width="2" fill="none" opacity=".7"/></g>
+  <path d="M136 566 C134 508 196 470 300 470 C404 470 466 508 464 566 C430 596 170 596 136 566Z" fill="url(#robeS)"/>
+  <path d="M170 548 Q236 520 300 546 M300 546 Q364 520 430 548 M196 572 Q300 586 404 572 M150 560 Q170 520 220 500" stroke="#6e300b" stroke-width="3" fill="none" opacity=".55" filter="url(#b2)"/>
+  <path d="M160 560 Q230 532 296 552" stroke="#ffc27a" stroke-width="1.5" fill="none" opacity=".35"/>
+  <g class="breathe">
+   <path d="M277 262 L277 332 Q300 346 323 332 L323 262Z" fill="url(#skinB)"/>
+   <ellipse cx="300" cy="300" rx="30" ry="14" fill="#4a2814" opacity=".5" filter="url(#b6)"/>
+   <path d="M205 336 C188 384 194 446 210 484 L392 484 C408 446 412 384 395 336 C360 320 240 320 205 336Z" fill="url(#robeS)"/>
+   <path d="M205 336 C218 328 252 324 270 330 L252 424 C230 430 210 414 205 384Z" fill="url(#skinB)"/>
+   <path d="M222 360 Q238 368 250 362" stroke="#7d4a2a" stroke-width="1.2" fill="none" opacity=".5"/>
+   <path d="M396 330 C360 320 300 324 268 332 C254 382 240 432 224 482 L394 486 C412 432 412 372 396 330Z" fill="url(#robeM)"/>
+   <path d="M290 340 Q320 400 300 480 M330 336 Q360 400 346 484 M370 340 Q392 400 384 484" stroke="#2a0606" stroke-width="5" fill="none" opacity=".45" filter="url(#b2)"/>
+   <path d="M300 344 Q326 400 308 478" stroke="#d05050" stroke-width="1.5" fill="none" opacity=".35"/>
+   <path d="M268 332 C254 382 240 432 224 482" stroke="#c9a24a" stroke-width="3" fill="none"/>
+   <path d="M216 334 C186 340 168 382 164 432 C162 458 180 472 202 470 C216 440 226 400 234 360Z" fill="url(#skinB)"/>
+   <path d="M174 456 C200 482 250 492 288 480 L288 460 C250 466 216 456 196 440Z" fill="url(#skinB)"/><path d="M178 462 C204 484 250 492 284 482" stroke="#5a3018" stroke-width="5" fill="none" opacity=".45" filter="url(#b2)"/><path d="M198 444 C218 458 250 464 284 462" stroke="#f2cda2" stroke-width="2" fill="none" opacity=".35"/><path d="M190 350 C176 380 170 410 172 440" stroke="#5a3018" stroke-width="7" fill="none" opacity=".4" filter="url(#b2)"/><path d="M226 350 C220 380 214 410 206 440" stroke="#f2cda2" stroke-width="3" fill="none" opacity=".3" filter="url(#b2)"/>
+   <path d="M390 334 C420 344 436 386 438 432 C440 458 420 472 398 470 C386 440 376 400 368 360Z" fill="url(#robeM)"/>
+   <path d="M426 456 C400 482 350 492 312 480 L312 460 C350 466 386 456 406 440Z" fill="url(#robeM)"/>
+   <g class="hot" data-hs="hands">
+    <ellipse cx="300" cy="490" rx="50" ry="10" fill="#3a1606" opacity=".45" filter="url(#b2)"/>
+    <path d="M252 476 Q256 492 300 494 Q344 492 348 476 Q330 468 300 468 Q270 468 252 476Z" fill="url(#skinB)"/>
+    <path d="M258 470 Q262 484 300 486 Q338 484 342 470 Q326 460 300 460 Q274 460 258 470Z" fill="#d6a072"/>
+    <path d="M270 466 Q300 472 330 466 M268 473 Q300 480 332 473 M272 479 Q300 485 328 479" stroke="#8a5532" stroke-width="1" fill="none" opacity=".55"/>
+    <ellipse cx="300" cy="458" rx="22" ry="7" fill="#2a1206" opacity=".7"/>
+    <path d="M262 466 Q270 448 300 446 Q330 448 338 466" stroke="#c88d5d" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M266 462 Q274 450 300 449 Q326 450 334 462" stroke="#f2cda2" stroke-width="1.5" fill="none" opacity=".6"/>
+    <path d="M298 446 v3" stroke="#7d4a2a" stroke-width="1"/>
+   </g>
+   <g class="hot" data-hs="mala" id="mala">${beads}<circle cx="300" cy="392" r="8" fill="url(#bead)"/><path d="M300 400 v26 M297 402 l-3 24 M303 402 l3 24" stroke="#b02a2a" stroke-width="2"/></g>
+   <g id="head">
+    <g class="hot" data-hs="ears"><ellipse cx="241" cy="230" rx="12" ry="26" fill="url(#skinH)"/><path d="M234 244 Q230 290 244 296 Q254 282 251 248Z" fill="#c88d5d"/><ellipse cx="359" cy="230" rx="12" ry="26" fill="url(#skinH)"/><path d="M366 244 Q370 290 356 296 Q346 282 349 248Z" fill="#a86d42"/>
+     <path d="M243 220 q-6 10 0 22 M357 220 q6 10 0 22" stroke="#7d4a2a" stroke-width="2" fill="none" opacity=".5"/></g>
+    <g class="hot" data-hs="face">
+     <ellipse cx="300" cy="218" rx="60" ry="72" fill="url(#skinH)"/>
+     <ellipse cx="334" cy="240" rx="30" ry="58" fill="#4f2a15" opacity=".35" filter="url(#b6)"/>
+     <ellipse cx="282" cy="176" rx="22" ry="13" fill="#fff" opacity=".22" filter="url(#b6)"/>
+     <path d="M270 172 Q300 164 330 172 M266 182 Q300 174 334 182 M272 191 Q300 185 328 191" stroke="#7a4a2c" stroke-width="1.4" fill="none" opacity=".35"/>
+     ${eye(277,216,"L")}${eye(323,216,"R")}
+     <path d="M258 220 l-6 4 M258 226 l-6 2 M342 220 l6 4 M342 226 l6 2" stroke="#7a4a2c" stroke-width="1" opacity=".5"/>
+     <path d="M300 206 C296 226 291 240 289 250 Q300 260 311 250 C309 240 304 226 300 206Z" fill="#b97d4e" opacity=".75"/>
+     <path d="M298 212 C296 228 294 240 293 248" stroke="#f2cda2" stroke-width="2" fill="none" opacity=".6"/>
+     <ellipse cx="293" cy="252" rx="3.5" ry="2" fill="#3b1e0c" opacity=".6"/><ellipse cx="307" cy="252" rx="3.5" ry="2" fill="#3b1e0c" opacity=".6"/>
+     <ellipse cx="270" cy="244" rx="12" ry="7" fill="#e08a6a" opacity=".25" filter="url(#b2)"/><ellipse cx="330" cy="244" rx="12" ry="7" fill="#e08a6a" opacity=".2" filter="url(#b2)"/>
+     <path d="M276 236 Q268 248 272 262 M324 236 Q332 248 328 262" stroke="#7a4a2c" stroke-width="1.2" fill="none" opacity=".35"/>
+     <path d="M264 266 Q300 300 336 266 Q330 300 300 312 Q270 300 264 266Z" fill="#e8e1d3" opacity=".9"/>
+     <g id="beard">${beard}</g>
+     <path id="mouth" d="M287 270 Q300 276 313 270" stroke="#6b3a22" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+     ${must}${brow}
+    </g>
+    <circle cx="300" cy="190" r="3" fill="${G2}" opacity=".8"/>
+    <g class="hot" data-hs="ears"><ellipse cx="236" cy="250" rx="11" ry="34" fill="transparent"/><ellipse cx="364" cy="250" rx="11" ry="34" fill="transparent"/></g>
+   </g>
+  </g>
+  ${cks}
+ </g></g></g>`;
+}
+function setLids(c){$$("#head .lid").forEach((p,i)=>{const x=i?323:277,y=216,ly=y-9+16*c;p.setAttribute("d",`M${x-16} ${y-12} H${x+16} V${ly} Q${x} ${ly+3*(1-c)+2} ${x-16} ${ly}Z`)});
+ $$("#head .lash").forEach((p,i)=>{const x=i?323:277,y=216,ly=y-9+16*c;p.setAttribute("d",`M${x-14} ${Math.min(ly,y)} Q${x} ${Math.min(ly+3*(1-c)+2,y+7)} ${x+14} ${Math.min(ly,y)}`)})}
+
+/* ================= particles ================= */
+const cv=$("#fx"),cx=cv.getContext("2d");let P=[],B=[],hoverPt=null;
+function size(){const r=cv.getBoundingClientRect();if(!r.width)return;const d=devicePixelRatio||1;cv.width=r.width*d;cv.height=r.height*d;cx.setTransform(d*r.width/600,0,0,d*r.height/640,0,0)}
+for(let i=0;i<50;i++)P.push({x:Math.random()*600,y:80+Math.random()*540,vx:(Math.random()-.5)*.3,vy:-.1-Math.random()*.3,r:1+Math.random()*2.2,t:Math.random()*6});
+function burst(x=300,y=300,col,n=36){const c=col||getComputedStyle(document.documentElement).getPropertyValue("--tune").trim()||G2;for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=1+Math.random()*3.5;B.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,r:1.5+Math.random()*2.5,l:1,c:i%3?G2:c})}}
+function frame(){cx.clearRect(0,0,600,640);
+ if(hoverPt&&!RM&&Math.random()<.6)B.push({x:hoverPt.x+(Math.random()-.5)*14,y:hoverPt.y,vx:(Math.random()-.5)*1.2,vy:-.6-Math.random()*1.4,r:1.2+Math.random()*2,l:1,c:hoverPt.c});
+ for(const p of P){p.x+=p.vx;p.y+=p.vy;p.t+=.03;if(p.y<60){p.y=630;p.x=Math.random()*600}if(p.x<0||p.x>600)p.vx*=-1;const a=.3+.7*Math.abs(Math.sin(p.t));cx.fillStyle=`rgba(246,220,143,${a})`;cx.shadowColor=G2;cx.shadowBlur=10;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill()}
+ B=B.filter(b=>b.l>0);for(const b of B){b.x+=b.vx;b.y+=b.vy;b.vy+=.03;b.l-=.016;cx.globalAlpha=Math.max(b.l,0);cx.fillStyle=b.c;cx.shadowColor=b.c;cx.beginPath();cx.arc(b.x,b.y,b.r,0,7);cx.fill();cx.globalAlpha=1}
+ cx.shadowBlur=0;if(!RM)requestAnimationFrame(frame)}
+
+/* ================= master behaviour ================= */
+let busy=false,mode="menu",mtimer=null,score={},qi=0,lastMove=Date.now(),deep=false,lastFast=0,clicks=[],lidBase=.3;
+const tune=c=>document.documentElement.style.setProperty("--tune",c||(myF?`var(--${myF})`:G2));
+function say(t,opts=[],cite=""){$("#say").textContent=t;$("#cite").textContent=cite?"— "+cite:"";$("#opts").innerHTML=opts.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join("");$("#opts").onclick=e=>{const b=e.target.closest("[data-o]");if(b)opts[+b.dataset.o][1]()}}
+const greet=()=>{const h=new Date().getHours();return h<5?"The temple glows at night, and so do you.":h<12?"Good morning, traveler. The bells are fresh.":h<17?"Good afternoon, traveler. The sun is high over the temple.":h<21?"Good evening, traveler. The lanterns are being lit.":"The night is quiet, traveler. A good time to listen."};
+function menu(t){mode="menu";say(t||greet()+" What does your spirit seek?",[["Teach me",quote],["Read my frequency",startQuiz],["Breathe with me",meditate],["Enter the Zen Den",()=>location.hash="den"]].concat(myF?[[`My frequency: ${F[myF].name}`,()=>result(myF)]]:[]))}
+function quote(){const q=pick(QUOTES);mode="menu";smile();say(q[0],[["Another teaching",quote],["Read my frequency",startQuiz],["Enter the Zen Den",()=>location.hash="den"]],q[1]);burst(300,270,G2,18)}
+function startQuiz(){score={};qi=0;mode="quiz";ask()}
+function ask(){if(qi>=Q.length){const best=Object.keys(F).sort((a,b)=>(score[b]||0)-(score[a]||0))[0];myF=best;store.set("freq",best);burst();chime();result(best);return}
+ const s=Q[qi];say(s.q,s.a.map(a=>[a[0],()=>{for(const[k,v]of Object.entries(a[1]))score[k]=(score[k]||0)+v;qi++;ask()}]))}
+function result(f){tune(`var(--${f})`);smile();picks();mode="menu";
+ say(`I see it now. Your frequency is ${F[f].name}. ${F[f].line}`,[["Show me where",()=>{filt.f=f;location.hash="discover"}],["Give me a ritual",()=>say(F[f].ritual,[["Thank you, master",()=>menu("May it serve you. What next?")],["Show me where",()=>{filt.f=f;location.hash="discover"}]])],["Breathe with me",meditate],["Ask again",startQuiz]])}
+function smile(){const m=$("#mouth");m.setAttribute("d","M285 268 Q300 280 315 268");setTimeout(()=>m.setAttribute("d","M287 270 Q300 276 313 270"),1600)}
+function meditate(){if(busy)return;busy=true;mode="med";setLids(1);let i=0;const ph=[["Breathe in",1.25],["Hold",1.25],["Breathe out",1],["Hold",1]],au=$("#aura");
+ say("Sit with me. Four rounds of box breathing. Follow my light.",[["Stop",stop]]);
+ const tick=()=>{if(i>=16){stop();burst();chime();bump("minutes",1);menu("Beautiful. Notice how you feel. The temple is always here.");return}
+  const[w,s]=ph[i%4];$("#say").textContent=`${w}…  round ${Math.floor(i/4)+1} of 4`;au.style.transform=`scale(${s})`;if(i%4===0&&!muted)tone(220,4,.06);i++;mtimer=setTimeout(tick,4000)};
+ mtimer=setTimeout(tick,1200);
+ function stop(){clearTimeout(mtimer);busy=false;setLids(lidBase);au.style.transform="";if(i<16)menu("Any breath is a good breath. What next?")}}
+function enterDeep(){if(deep||busy)return;deep=true;$("#stage").classList.add("deep");setLids(1);$("#aura").style.transform="scale(1.2)";say("…the master has drifted into deep meditation and is floating. Move gently to wake him.",[])}
+function wake(){if(!deep)return;deep=false;$("#stage").classList.remove("deep");setLids(lidBase);$("#aura").style.transform="";menu("Ah. You have returned. I was visiting the stars.")}
+function blink(){if(!busy&&!deep){setLids(1);setTimeout(()=>{if(!busy&&!deep)setLids(lidBase)},140)}setTimeout(blink,2600+Math.random()*3800)}
+function enlightenment(){const st=$("#stage");st.classList.add("rainbow","deep");CK.forEach((c,i)=>setTimeout(()=>{burst(300,c.y,c.c,20);if(!muted)tone(c.hz,1.2,.06)},i*180));say("Seven touches… you have awakened all seven chakras! Enlightenment mode.",[["Return to earth",()=>{st.classList.remove("rainbow","deep");menu()}]]);setTimeout(()=>{st.classList.remove("rainbow","deep")},9000)}
+const HS={
+ face:["Speak, master","Click for a new teaching"],
+ mala:["Mala beads","Click to count a bead (108 per round)"],
+ hands:["Dhyana mudra","Click to open the breath portal"],
+ ears:["The listening ears","Click to open the sound portal"],
+ cushion:["The zafu","Click to sit in the meditation room"]
+};
+function tipShow(e,html,pt){const t=$("#tip"),r=$("#stage").getBoundingClientRect();t.innerHTML=html;t.style.left=(e.clientX-r.left)+"px";t.style.top=(e.clientY-r.top)+"px";t.style.opacity=1}
+function svgPt(e){const r=$("#scene").getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*600,y:(e.clientY-r.top)/r.height*640}}
+let beadIdx=0,lastHum=0;
+function countBead(){const bs=$$("#mala [data-b]");bs.forEach(b=>b.setAttribute("fill","url(#bead)"));const b=bs[beadIdx%bs.length];b.setAttribute("fill",G2);beadIdx++;bump("beads");if(!muted)bowl(beadIdx%108===0?396:660,1.2,.08);
+ const n=stats.beads%108||108;if(stats.beads%108===0){burst(300,392,G2,50);say(`One full mala. 108 beads. You have now completed ${stats.beads/108} round${stats.beads/108>1?"s":""}.`,[["Keep counting",()=>{}],["Back",()=>menu()]])}else say(`Bead ${n} of 108. Say a word you wish to grow: peace, courage, love. Click again.`,[["Teach me",quote],["Back",()=>menu()]])}
+
+/* ================= portals ================= */
+let lastFocus=null;
+function portal({color,sk,title,body,opts}){lastFocus=document.activeElement;const p=$("#portal");p.style.setProperty("--pc",color);$("#pSk").textContent=sk||"";$("#pTitle").textContent=title;$("#pBody").innerHTML=body;$("#pOpts").innerHTML=opts.map((o,i)=>`<button class="opt" data-p="${i}">${o[0]}</button>`).join("");$("#pOpts").onclick=e=>{const b=e.target.closest("[data-p]");if(b)opts[+b.dataset.p][1]()};p.hidden=false;bump("portals");$("#pClose").focus()}
+function closePortal(){$("#portal").hidden=true;if(lastFocus)lastFocus.focus()}
+const go=h=>()=>{closePortal();location.hash=h};
+function chakraPortal(k){const c=CK.find(x=>x.k===k);tune(c.c);if(!muted)bowl(c.hz,5,.2);burst(300,c.y,c.c,30);
+ portal({color:c.c,sk:`${c.s} · ${c.hz} Hz`,title:`${c.n} Chakra`,body:`<p><b>Where:</b> ${c.loc}<br><b>Element:</b> ${c.el}<br><b>Theme:</b> ${c.th}</p><p style="font-family:Cinzel,serif;color:${c.c};font-size:19px">“${c.af}”</p><p class="small">Close your eyes, rest your attention at the ${c.loc.toLowerCase()}, and repeat the affirmation three times with the tone.</p>`,
+  opts:[[`Play ${c.hz} Hz`,()=>bowl(c.hz,7,.25)],["Hum the tone",()=>tone(c.hz,6,.12)],["Enter the Chakra Shrine",()=>{shrineSel=k;go("chakras")()}]]})}
+function hsClick(h){
+ if(h==="face"){quote();return}
+ if(h==="mala"){countBead();return}
+ if(h==="hands")portal({color:"#4fb487",sk:"Dhyana mudra",title:"The Breath Portal",body:"<p>The master's hands rest in the mudra of meditation, thumbs touching. Breath is the bridge between body and mind.</p>",opts:[["Breathe here with him",()=>{closePortal();meditate()}],["Enter the Breath Hall",go("breath")]]});
+ if(h==="ears"){if(!muted)bowl(432,5,.18);portal({color:"#3a8fe0",sk:"Long ears hear everything",title:"The Sound Portal",body:"<p>The master hears the river, the rain and the hum beneath all things. Listen with him.</p>",opts:[["Strike a bowl",()=>bowl(432,6,.25)],["Rain",()=>ambience("rain")],["Ocean",()=>ambience("ocean")],["Silence",()=>ambience(null)],["Enter the Sound Chamber",go("sound")]]})}
+ if(h==="cushion")portal({color:"#c2641b",sk:"The zafu",title:"Sit With the Master",body:"<p>Every great sit begins with a humble cushion. Choose your time in the meditation room.</p>",opts:[["Enter the Meditation Room",go("meditate")],["Ring the gong",()=>gong()]]});
+}
+
+/* ================= rooms ================= */
+function doors(){const h=ROOMS.map(([k,n,d])=>`<a class="door" href="#${k}"><svg viewBox="0 0 84 84" fill="none" stroke="${G2}" stroke-width="2" style="color:${G2}">${ICON[k]}</svg><b>${n}</b><span>${d}</span></a>`).join("");$("#roomsHome").innerHTML=h;$("#roomsDen").innerHTML=h}
+/* sound */
+let note=CK[3];const BEATS=[["Off",0],["Delta 2 Hz · deep rest",2],["Theta 6 Hz · meditation",6],["Alpha 10 Hz · calm focus",10]],AMBS=[["Off",null],["Rain","rain"],["Ocean","ocean"],["Forest","forest"],["Om drone","om"]];
+let beatSel=0,ambSel=null,ripples=[];
+function soundUI(){$("#notes").innerHTML=CK.map(c=>`<button class="chip" data-note="${c.k}" aria-pressed="${note.k===c.k}"><span class="tag" style="background:${c.c};padding:0 7px">&nbsp;</span>${c.n} ${c.hz}</button>`).join("");
+ $("#beats").innerHTML=BEATS.map(([l,v])=>`<button class="chip" data-beat="${v}" aria-pressed="${beatSel===v}">${l}</button>`).join("");
+ $("#amb").innerHTML=AMBS.map(([l,v])=>`<button class="chip" data-amb="${v||""}" aria-pressed="${ambSel===v}">${l}</button>`).join("")}
+function strike(){bowl(note.hz,8,.3);ripples.push({r:20,c:note.c,l:1})}
+const bcv=$("#bowlCv"),bcx=bcv.getContext("2d");
+function soundLoop(){if($("#v-sound").hidden)return;const W=bcv.clientWidth,H=bcv.clientHeight,d=devicePixelRatio||1;if(bcv.width!==W*d){bcv.width=W*d;bcv.height=H*d}bcx.setTransform(d,0,0,d,0,0);bcx.clearRect(0,0,W,H);
+ if(AN){const a=new Uint8Array(AN.frequencyBinCount);AN.getByteFrequencyData(a);const n=64;for(let i=0;i<n;i++){const v=a[i]/255,ang=i/n*Math.PI*2,r0=Math.min(W,H)*.32,r1=r0+v*70;bcx.strokeStyle=note.c;bcx.globalAlpha=.25+v*.75;bcx.lineWidth=3;bcx.beginPath();bcx.moveTo(W/2+Math.cos(ang)*r0,H/2+Math.sin(ang)*r0);bcx.lineTo(W/2+Math.cos(ang)*r1,H/2+Math.sin(ang)*r1);bcx.stroke()}bcx.globalAlpha=1}
+ ripples=ripples.filter(r=>r.l>0);for(const r of ripples){r.r+=2.2;r.l-=.012;bcx.strokeStyle=r.c;bcx.globalAlpha=r.l;bcx.lineWidth=2;bcx.beginPath();bcx.ellipse(W/2,H/2,r.r,r.r*.6,0,0,7);bcx.stroke();bcx.globalAlpha=1}
+ requestAnimationFrame(soundLoop)}
+/* breath */
+const PAT={box:["Box 4·4·4·4","Steady and grounding. Used to calm nerves before big moments.",[4,4,4,4]],relax:["Relax 4·7·8","A long hold and longer exhale to settle into rest or sleep.",[4,7,8,0]],coherent:["Coherent 5.5·5.5","Even waves, about five breaths a minute. Balancing.",[5.5,0,5.5,0]],ocean:["Ocean 4·2·6","A short pause and long exhale, like waves on sand.",[4,2,6,0]],awaken:["Awaken 2·0·2","Quick, light breaths to lift energy. Stop if dizzy.",[2,0,2,0]]};
+let pat="box",bTimer=null,bStart=0;
+function breathUI(){$("#patterns").innerHTML=Object.entries(PAT).map(([k,v])=>`<button class="chip" data-pat="${k}" aria-pressed="${pat===k}">${v[0]}</button>`).join("");$("#patDesc").textContent=PAT[pat][1]}
+function breathStop(done){clearTimeout(bTimer);bTimer=null;const o=$("#orb2");o.style.transitionDuration="1s";o.style.transform="";$("#breathGo").textContent="Begin";const m=(Date.now()-bStart)/60000;if(bStart&&m>.2)bump("minutes",Math.round(m*10)/10);bStart=0;$("#orbTxt").textContent=done?"Well breathed. Notice the stillness.":"Choose a breath";if(done){chime()}}
+function breathGo(){if(bTimer){breathStop(false);return}const[, ,t]=PAT[pat],R=+$("#rounds").value,o=$("#orb2"),useT=$("#breathTone").checked;let i=0;bStart=Date.now();$("#breathGo").textContent="Stop";
+ const ph=[["Breathe in",2.4,t[0]],["Hold",2.4,t[1]],["Breathe out",1,t[2]],["Hold",1,t[3]]];
+ const step=()=>{if(i>=R*4){breathStop(true);return}const[w,s,d]=ph[i%4];i++;if(!d){step();return}o.style.transitionDuration=d+"s";o.style.transform=`scale(${s})`;$("#orbTxt").textContent=`${w} · ${d}s · round ${Math.ceil(i/4)} of ${R}`;
+  if(useT&&!muted&&(w==="Breathe in"||w==="Breathe out")){const c=A(),tt=c.currentTime,os=c.createOscillator(),g=c.createGain();os.frequency.setValueAtTime(w==="Breathe in"?174:261,tt);os.frequency.linearRampToValueAtTime(w==="Breathe in"?261:174,tt+d);g.gain.setValueAtTime(.0001,tt);g.gain.exponentialRampToValueAtTime(.07,tt+.4);g.gain.exponentialRampToValueAtTime(.0001,tt+d);os.connect(g);g.connect(OUT);os.start(tt);os.stop(tt+d+.05)}
+  bTimer=setTimeout(step,d*1000)};step()}
+/* garden */
+let tool="rake",gx=null,raking=null;const sand=$("#sand");
+function sandInit(){const r=sand.getBoundingClientRect(),d=devicePixelRatio||1;sand.width=r.width*d;sand.height=r.height*d;gx=sand.getContext("2d");gx.setTransform(d,0,0,d,0,0);smooth()}
+function smooth(){const W=sand.clientWidth,H=sand.clientHeight;gx.fillStyle="#e9dfc8";gx.fillRect(0,0,W,H);for(let i=0;i<W*H/40;i++){gx.fillStyle=Math.random()<.5?"rgba(160,140,100,.18)":"rgba(255,255,255,.35)";gx.fillRect(Math.random()*W,Math.random()*H,1,1)}
+ gx.strokeStyle="rgba(150,130,95,.35)";gx.lineWidth=1.5;for(let y=14;y<H;y+=12){gx.beginPath();gx.moveTo(0,y);for(let x=0;x<=W;x+=20)gx.lineTo(x,y+Math.sin(x/60)*2);gx.stroke()}}
+function rakeSeg(a,b){const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<2)return false;const nx=-dy/L,ny=dx/L;for(let k=-2;k<=2;k++){const o=k*7;gx.lineCap="round";gx.strokeStyle="rgba(150,128,90,.55)";gx.lineWidth=2.4;gx.beginPath();gx.moveTo(a.x+nx*o,a.y+ny*o);gx.lineTo(b.x+nx*o,b.y+ny*o);gx.stroke();gx.strokeStyle="rgba(255,250,235,.7)";gx.lineWidth=1;gx.beginPath();gx.moveTo(a.x+nx*(o+1.6),a.y+ny*(o+1.6));gx.lineTo(b.x+nx*(o+1.6),b.y+ny*(o+1.6));gx.stroke()}return true}
+function rings(x,y,r0){for(let r=r0+8;r<r0+60;r+=8){gx.strokeStyle="rgba(150,128,90,.5)";gx.lineWidth=2;gx.beginPath();gx.ellipse(x,y,r,r*.8,0,0,7);gx.stroke();gx.strokeStyle="rgba(255,250,235,.6)";gx.lineWidth=1;gx.beginPath();gx.ellipse(x,y,r+1.6,(r+1.6)*.8,0,0,7);gx.stroke()}}
+function stone(x,y){const r=12+Math.random()*16;rings(x,y,r);gx.fillStyle="rgba(0,0,0,.25)";gx.beginPath();gx.ellipse(x+4,y+6,r,r*.75,0,0,7);gx.fill();const g=gx.createRadialGradient(x-r*.3,y-r*.3,2,x,y,r);g.addColorStop(0,"#9aa09a");g.addColorStop(1,"#3c423e");gx.fillStyle=g;gx.beginPath();gx.ellipse(x,y,r,r*.75,Math.random(),0,7);gx.fill()}
+function moss(x,y){for(let i=0;i<60;i++){const a=Math.random()*7,d=Math.random()*18;gx.fillStyle=`hsl(${110+Math.random()*30},45%,${25+Math.random()*20}%)`;gx.beginPath();gx.arc(x+Math.cos(a)*d,y+Math.sin(a)*d*.8,2+Math.random()*2.5,0,7);gx.fill()}}
+const TOOLS=[["rake","Rake"],["stone","Stone"],["ripple","Ripple"],["moss","Moss"]];
+function toolsUI(){$("#tools").innerHTML=TOOLS.map(([k,l])=>`<button class="chip" data-tool="${k}" aria-pressed="${tool===k}">${l}</button>`).join("")+`<button class="chip" id="smooth">Smooth the sand</button>`}
+const sp=e=>{const r=sand.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+sand.addEventListener("pointerdown",e=>{if(!gx)sandInit();const p=sp(e);if(tool==="rake"){raking=p;sand.setPointerCapture(e.pointerId)}else if(tool==="stone")stone(p.x,p.y);else if(tool==="ripple")rings(p.x,p.y,4);else moss(p.x,p.y)});
+sand.addEventListener("pointermove",e=>{if(!raking)return;const p=sp(e);if(rakeSeg(raking,p))raking=p});
+["pointerup","pointercancel"].forEach(t=>sand.addEventListener(t,()=>raking=null));
+/* meditation room */
+let mins=5,mAmb=null,medT=null,medEnd=0,medDur=0;const RING=565.5;
+function medUI(){$("#mins").innerHTML=[1,3,5,10,20].map(m=>`<button class="chip" data-min="${m}" aria-pressed="${mins===m}">${m}</button>`).join("");$("#mAmb").innerHTML=AMBS.map(([l,v])=>`<button class="chip" data-mamb="${v||""}" aria-pressed="${mAmb===v}">${l}</button>`).join("");if(!medT)$("#tLeft").textContent=fmt(mins*60)}
+const fmt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+function medGo(){if(medT){medStop(false);return}medDur=mins*60;medEnd=Date.now()+medDur*1000;gong();if(mAmb)ambience(mAmb);$("#medGo").textContent="End early";medT=setInterval(medTick,250)}
+function medTick(){const left=Math.max(0,(medEnd-Date.now())/1000);$("#tLeft").textContent=fmt(Math.ceil(left));$("#ring").setAttribute("stroke-dashoffset",(RING*(1-left/medDur)).toFixed(1));if(left<=0)medStop(true)}
+function medStop(done){clearInterval(medT);medT=null;const used=medDur-Math.max(0,(medEnd-Date.now())/1000);if(used>10)bump("minutes",Math.round(used/6)/10);if(done){gong();setTimeout(gong,3500)}ambience(null);$("#medGo").textContent="Begin";$("#ring").setAttribute("stroke-dashoffset",0);$("#tLeft").textContent=done?"Done":fmt(mins*60)}
+/* chakra shrine */
+let shrineSel="heart",aligning=null;
+function shrine(){const fig=`<path d="M150 70 a26 30 0 1 1 0.1 0Z M110 150 Q150 120 190 150 L200 260 Q150 280 100 260Z M60 330 Q60 280 150 270 Q240 280 240 330 Q150 360 60 330Z" fill="#1c3527" stroke="${G}" stroke-width="1.5"/>`;
+ const ys={crown:40,third:78,throat:128,heart:180,solar:225,sacral:270,root:318};
+ $("#shrineSvg").innerHTML=`<defs><filter id="sg" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="6"/></filter></defs><line x1="150" y1="30" x2="150" y2="330" stroke="${G}" stroke-dasharray="2 6"/>${fig}`+CK.map(c=>`<g class="cnode ${shrineSel===c.k?"on":""}" data-sh="${c.k}" tabindex="0" role="button" aria-label="${c.n} chakra"><circle class="halo" cx="150" cy="${ys[c.k]}" r="22" fill="${c.c}" opacity="${shrineSel===c.k?.9:.25}" filter="url(#sg)"/><circle cx="150" cy="${ys[c.k]}" r="${shrineSel===c.k?13:9}" fill="${c.c}" stroke="${G2}"/><text x="${c.k==="root"||c.k==="sacral"?190:200}" y="${ys[c.k]+5}" fill="${G2}" font-size="13" font-family="Cinzel,serif">${c.n}</text></g>`).join("")+`<text x="150" y="420" text-anchor="middle" fill="${G2}" font-size="12" opacity=".6">Tap a chakra</text>`;
+ const c=CK.find(x=>x.k===shrineSel);
+ $("#ckPanel").innerHTML=`<div class="small">${c.s} · ${c.hz} Hz</div><h3 style="color:${c.c};font-size:26px">${c.n} Chakra</h3><p><b>Where:</b> ${c.loc}<br><b>Element:</b> ${c.el}<br><b>Theme:</b> ${c.th}</p><p style="font-family:Cinzel,serif;font-size:20px;color:${c.c}">“${c.af}”</p><div class="opts"><button class="btn" data-ckplay="${c.k}">Play ${c.hz} Hz</button><button class="btn alt" id="align">${aligning?"Stop alignment":"Align all seven"}</button></div><p class="small" style="margin-top:12px">Alignment plays each tone from root to crown, eight seconds each.</p>`}
+function align(){if(aligning){clearTimeout(aligning);aligning=null;shrine();return}let i=0;const step=()=>{if(i>=CK.length){aligning=null;chime();shrine();return}shrineSel=CK[i].k;bowl(CK[i].hz,8,.25);i++;aligning=setTimeout(step,8000);shrine()};aligning=1;step()}
+/* lanterns */
+function sky(){const s=$("#sky"),L=store.get("lanterns",[]);s.innerHTML=Array.from({length:60},()=>`<i class="star" style="left:${Math.random()*100}%;top:${Math.random()*70}%;opacity:${.2+Math.random()*.7}"></i>`).join("")+L.map((l,i)=>`<div class="lan" title="${esc(l.t)}" style="left:${l.x}%;top:${l.y}%;animation-delay:-${i%6}s;transform:scale(${l.s})"></div>`).join("")+(L.length?"":`<p class="small" style="position:absolute;bottom:12px;left:0;right:0;text-align:center">The sky is waiting for your first lantern.</p>`)}
+function release(e){e.preventDefault();const t=$("#lanTxt").value.trim();if(!t)return;const L=store.get("lanterns",[]),l={t,x:8+Math.random()*84,y:6+Math.random()*55,s:(.7+Math.random()*.6).toFixed(2)};L.push(l);store.set("lanterns",L.slice(-40));bump("lanterns");$("#lanTxt").value="";sky();const el=$$("#sky .lan").pop();if(el&&!RM){el.classList.add("rise");setTimeout(()=>el.classList.remove("rise"),5100)}chime()}
+/* koans */
+function drawKoan(){const f=$("#fcard"),k=pick(KOANS);if(f.classList.contains("turned")){f.classList.remove("turned");setTimeout(()=>{$("#koanTxt").textContent=k;f.classList.add("turned")},RM?0:500)}else{$("#koanTxt").textContent=k;f.classList.add("turned")}bump("koans");if(!muted)bowl(528,3,.12)}
+function journal(el){const J=store.get("journal",[]);$(el).innerHTML=J.length?J.slice().reverse().map(j=>`<div class="entry"><div class="small">${esc(j.d)} · ${esc(j.k)}</div><p style="margin:4px 0 0">${esc(j.t)}</p></div>`).join(""):`<div class="empty">Your reflections will appear here.</div>`}
+function saveRefl(){const t=$("#refl").value.trim();if(!t)return;const J=store.get("journal",[]);J.push({d:new Date().toLocaleDateString(),k:$("#koanTxt").textContent||"Free reflection",t});store.set("journal",J.slice(-50));$("#refl").value="";journal("#journal")}
+
+/* ================= views ================= */
+function freqs(){$("#freqs").innerHTML=Object.entries(F).map(([k,f])=>`<button class="freq" data-go="${k}"><div class="dot" style="background:var(--${k});color:var(--${k})"></div><h3>${f.name}</h3><div class="small">${f.word} · ${f.line}</div></button>`).join("")}
+function picks(){const l=myF?S.filter(s=>s.f.includes(myF)).slice(0,3):[S[0],S[7],S[4]];$("#picksTitle").textContent=myF?`Spots on your frequency: ${F[myF].name}`:"Where the master would start";$("#picks").innerHTML=l.map(card).join("")}
+function chips(){$("#freqChips").innerHTML=`<button class="chip" data-f="" aria-pressed="${!filt.f}">All</button>`+Object.keys(F).map(k=>`<button class="chip" data-f="${k}" aria-pressed="${filt.f===k}">${F[k].name}</button>`).join("")}
+function list(){chips();const q=$("#q").value.trim().toLowerCase(),p=$("#price").value,st=$("#setting").value;
+ const l=S.filter(s=>(!filt.f||s.f.includes(filt.f))&&(p===""||s.p==p)&&(!st||s.set===st)&&(!q||(s.n+" "+s.d+" "+s.area).toLowerCase().includes(q)));
+ $("#count").textContent=`${l.length} spot${l.length===1?"":"s"}`;$("#list").innerHTML=l.length?l.map(card).join(""):`<div class="empty">Nothing on that frequency yet. Try clearing a filter.</div>`}
+const day=d=>d.toLocaleDateString("en-CA");
+function myzen(){
+ $("#stats").innerHTML=[["Minutes meditated",Math.round(stats.minutes||0)],["Mala beads",stats.beads||0],["Lanterns released",stats.lanterns||0],["Koans drawn",stats.koans||0],["Portals opened",stats.portals||0]].map(([l,v])=>`<div class="stat"><b>${v}</b><span class="small">${l}</span></div>`).join("");
+ $("#myFreq").innerHTML=myF?`<div class="result"><div class="small">Your frequency</div><h3>${F[myF].name}</h3><p>${F[myF].ritual}</p></div>`:`<div class="empty">No frequency yet. <a href="#home">Ask the master to read yours.</a></div>`;
+ const log=store.get("log",{}),t=log[day(new Date())]||[];
+ $("#rituals").innerHTML=RIT.map((r,i)=>`<label class="ritual"><input type="checkbox" data-r="${i}" ${t.includes(i)?"checked":""}>${r}</label>`).join("");
+ let n=0;const d=new Date();if(t.length<3)d.setDate(d.getDate()-1);while((log[day(d)]||[]).length>=3){n++;d.setDate(d.getDate()-1)}
+ $("#rituals").insertAdjacentHTML("beforeend",`<p class="small" style="margin-top:10px">Streak: <b style="color:var(--gold2)">${n} day${n===1?"":"s"}</b></p>`);
+ journal("#myJournal");
+ const sv=S.filter(s=>saved.includes(s.id));$("#saved").innerHTML=sv.length?sv.map(card).join(""):`<div class="empty">Tap the heart on any spot to save it here.</div>`}
+const VIEWS=["home","den","sound","breath","garden","meditate","chakras","lantern","koan","discover","my-zen"];
+const NAVOF={home:"home",den:"den",sound:"den",breath:"den",garden:"den",meditate:"den",chakras:"den",lantern:"den",koan:"den",discover:"discover","my-zen":"my-zen"};
+function route(){const h=location.hash.slice(1),v=VIEWS.includes(h)?h:"home";
+ VIEWS.forEach(k=>$("#v-"+k).hidden=k!==v);
+ $$("nav a").forEach(a=>a.hash==="#"+NAVOF[v]?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+ if(v!=="breath"&&bTimer)breathStop(false);
+ if(v==="discover")list();if(v==="my-zen")myzen();if(v==="home"){picks();requestAnimationFrame(size)}
+ if(v==="sound"){soundUI();requestAnimationFrame(soundLoop)}if(v==="breath")breathUI();if(v==="garden"){toolsUI();requestAnimationFrame(sandInit)}
+ if(v==="meditate")medUI();if(v==="chakras")shrine();if(v==="lantern")sky();if(v==="koan")journal("#journal");
+ scrollTo(0,0)}
+
+/* ================= events ================= */
+const stage=$("#stage");
+stage.addEventListener("pointermove",e=>{
+ const ck=e.target.closest(".ck"),hs=e.target.closest("[data-hs]");
+ if(ck){const c=CK.find(x=>x.k===ck.dataset.ck);hoverPt={x:300,y:c.y,c:c.c};tune(c.c);tipShow(e,`<b>${c.n}</b> · ${c.s} · ${c.hz} Hz — click to open`);if(!muted&&AC&&Date.now()-lastHum>900){tone(c.hz,.9,.03);lastHum=Date.now()}}
+ else if(hs){hoverPt=null;tune();const[a,b]=HS[hs.dataset.hs];tipShow(e,`<b>${a}</b> — ${b}`)}
+ else{hoverPt=null;$("#tip").style.opacity=0;if(!$(".ck.on"))tune()}
+});
+stage.addEventListener("pointerleave",()=>{hoverPt=null;$("#tip").style.opacity=0;tune()});
+stage.addEventListener("click",e=>{
+ A();if(deep){wake();return}
+ const now=Date.now();clicks=clicks.filter(t=>now-t<2500);clicks.push(now);
+ const ck=e.target.closest(".ck");if(ck){chakraPortal(ck.dataset.ck);return}
+ const hs=e.target.closest("[data-hs]");
+ if(clicks.length>=7&&!busy){clicks=[];enlightenment();return}
+ if(hs)hsClick(hs.dataset.hs);else if(e.target.closest("#master")&&!busy&&mode!=="quiz")quote();
+ const p=svgPt(e);burst(p.x,p.y,null,10);
+});
+addEventListener("pointermove",e=>{
+ const now=Date.now(),dt=now-lastMove||16;lastMove=now;if(deep)wake();
+ if($("#v-home").hidden||busy)return;
+ const r=stage.getBoundingClientRect(),dx=(e.clientX-(r.left+r.width/2))/r.width,dy=(e.clientY-(r.top+r.height*.35))/r.height,cl=v=>Math.max(-1,Math.min(1,v));
+ const X=cl(dx),Y=cl(dy);
+ $("#back").setAttribute("transform",`translate(${(-X*10).toFixed(1)} ${(-Y*6).toFixed(1)})`);
+ $("#front").setAttribute("transform",`translate(${(X*6).toFixed(1)} ${(Y*3).toFixed(1)})`);
+ $("#head").setAttribute("transform",`rotate(${(X*4).toFixed(2)} 300 300) translate(${(X*3).toFixed(1)} ${(Y*2).toFixed(1)})`);
+ $$("#head .iris").forEach(g=>g.setAttribute("transform",`translate(${(X*4).toFixed(2)} ${(Y*2.4).toFixed(2)})`));
+ const sp=Math.hypot(e.movementX||0,e.movementY||0)/dt;
+ if(sp>3&&now-lastFast>20000&&mode==="menu"){lastFast=now;say("Slow down, friend. The river does not race the sea. Take one long breath with me.",[["Breathe with me",meditate],["Teach me",quote]])}
+});
+setInterval(()=>{if(!$("#v-home").hidden&&!busy&&mode==="menu"&&Date.now()-lastMove>30000)enterDeep()},1000);
+document.addEventListener("click",e=>{
+ const h=e.target.closest("[data-save]");
+ if(h){const id=h.dataset.save;saved=saved.includes(id)?saved.filter(x=>x!==id):[...saved,id];store.set("saved",saved);$$(`[data-save="${id}"]`).forEach(b=>b.setAttribute("aria-pressed",saved.includes(id)));if(!$("#v-my-zen").hidden)myzen();return}
+ const c=e.target.closest("[data-f]");if(c){filt.f=c.dataset.f;list();return}
+ const g=e.target.closest("[data-go]");if(g){filt.f=g.dataset.go;location.hash="discover";return}
+ const n=e.target.closest("[data-note]");if(n){note=CK.find(x=>x.k===n.dataset.note);soundUI();strike();return}
+ const bt=e.target.closest("[data-beat]");if(bt){beatSel=+bt.dataset.beat;binaural(beatSel);soundUI();return}
+ const am=e.target.closest("[data-amb]");if(am){ambSel=am.dataset.amb||null;ambience(ambSel);soundUI();return}
+ const pt=e.target.closest("[data-pat]");if(pt){if(bTimer)breathStop(false);pat=pt.dataset.pat;breathUI();return}
+ const tl=e.target.closest("[data-tool]");if(tl){tool=tl.dataset.tool;toolsUI();return}
+ if(e.target.id==="smooth"){smooth();return}
+ const mn=e.target.closest("[data-min]");if(mn&&!medT){mins=+mn.dataset.min;medUI();return}
+ const ma=e.target.closest("[data-mamb]");if(ma){mAmb=ma.dataset.mamb||null;if(medT)ambience(mAmb);medUI();return}
+ const sh=e.target.closest("[data-sh]");if(sh){shrineSel=sh.dataset.sh;shrine();bowl(CK.find(x=>x.k===shrineSel).hz,5,.2);return}
+ const cp=e.target.closest("[data-ckplay]");if(cp){bowl(CK.find(x=>x.k===cp.dataset.ckplay).hz,8,.28);return}
+ if(e.target.id==="align"){align();return}
+});
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&!$("#portal").hidden)closePortal();
+ if((e.key==="Enter"||e.key===" ")&&e.target.closest("[data-sh]")){e.preventDefault();e.target.closest("[data-sh]").dispatchEvent(new MouseEvent("click",{bubbles:true}))}
+ if((e.key==="Enter"||e.key===" ")&&e.target.id==="bowl"){e.preventDefault();strike()}
+});
+document.addEventListener("change",e=>{if(e.target.dataset.r!==undefined){const log=store.get("log",{}),k=day(new Date()),i=+e.target.dataset.r;let t=log[k]||[];t=e.target.checked?[...new Set([...t,i])]:t.filter(x=>x!==i);log[k]=t;store.set("log",log);myzen()}});
+$("#portal").addEventListener("click",e=>{if(e.target.id==="portal")closePortal()});
+$("#pClose").onclick=closePortal;
+$("#bowl").onclick=strike;
+$("#stopAll").onclick=()=>{ambience(null);binaural(0);beatSel=0;ambSel=null;soundUI()};
+$("#vol").oninput=e=>{vol=+e.target.value;if(OUT&&!muted)OUT.gain.value=vol};
+$("#sndBtn").onclick=()=>{A();setMute(!muted)};
+$("#visionBtn").onclick=e=>{const on=stage.classList.toggle("vision");e.target.setAttribute("aria-pressed",on);if(on){CK.forEach((c,i)=>setTimeout(()=>burst(300,c.y,c.c,12),i*120));say("Chakra vision is open. Seven wheels of light, crown to root. Hover each one, then click to step through its portal.",[["Teach me",quote],["Back",()=>menu()]])}};
+$("#breathGo").onclick=breathGo;$("#medGo").onclick=medGo;$("#drawKoan").onclick=drawKoan;$("#saveRefl").onclick=saveRefl;$("#lanForm").onsubmit=release;
+["#q","#price","#setting"].forEach(s=>$(s).addEventListener("input",list));
+addEventListener("resize",()=>{if(!$("#v-garden").hidden&&gx){const img=null;sandInit()}});
+
+/* ================= start ================= */
+$("#scene").innerHTML=master();setLids(lidBase);tune();setMute(false);doors();freqs();menu();
+const ro=new ResizeObserver(size);ro.observe(cv);size();
+if(RM)frame();else requestAnimationFrame(frame);
+setTimeout(blink,2500);
+addEventListener("hashchange",route);route();
+}
+</script>
+</body>
+</html>
