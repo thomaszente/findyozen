@@ -164,6 +164,27 @@ textarea{width:100%;min-height:110px;resize:vertical}
 .small{font-size:14px;color:var(--soft)}
 .entry{border-bottom:1px solid var(--line);padding:10px 0}
 footer{border-top:1px solid var(--line)}
+.walkbox{position:relative;height:min(80vh,780px);overflow:hidden;background:#060d09;border-bottom:1px solid var(--line)}
+.walkbox canvas{width:100%;height:100%}
+.hud{position:absolute;left:12px;top:12px;max-width:320px;background:rgba(9,18,14,.82);border:1px solid var(--line);border-radius:16px;padding:10px 14px;font-size:14px;color:var(--soft);pointer-events:none}
+.hud b{color:var(--gold2)}
+.wprompt{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;background:rgba(9,18,14,.92);border:1px solid var(--gold);border-radius:999px;padding:6px 6px 6px 18px;white-space:nowrap;box-shadow:0 0 30px rgba(246,220,143,.3)}
+.wprompt b{color:var(--gold2);font-family:Cinzel,serif}
+.wsub{position:absolute;top:12px;right:12px;left:auto;max-width:min(420px,60%);background:rgba(9,18,14,.9);border:1px solid var(--gold);border-radius:16px;padding:12px 16px;font-size:16px}
+.wload{position:absolute;inset:0;display:grid;place-items:center;font:600 20px Cinzel,serif;color:var(--gold2)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 16px}
+.form label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--soft)}
+.wheel svg,.bg svg{width:100%;height:auto;display:block}
+.bg svg{max-width:340px;margin:auto}
+table.pl{width:100%;border-collapse:collapse;font-size:15px}
+table.pl td,table.pl th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
+.gl{font-size:20px;color:var(--gold2);font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",sans-serif}
+.bar{height:10px;border-radius:5px;background:var(--gold)}
+.hdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.hdgrid .stat{text-align:left}.hdgrid .stat b{font-size:18px;line-height:1.3}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:14px}
+.acts div span{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}
 [hidden]{display:none!important}
 @media(max-width:860px){.temple .wrap,.two,.shrine{grid-template-columns:minmax(0,1fr)}.stage{max-width:460px}}
 @media(max-width:600px){nav a{padding:10px 8px;font-size:13px}#say{font-size:17px}}
@@ -173,7 +194,7 @@ footer{border-top:1px solid var(--line)}
 <body>
 <header><div class="wrap">
  <a class="brand" href="#home"><svg viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="none" stroke="#d9b45a" stroke-width="1.5"/><path d="M15 6c3 4 3 8 0 12-3-4-3-8 0-12z M6 17c4 0 7 2 9 6-4 0-7-2-9-6z M24 17c-4 0-7 2-9 6 4 0 7-2 9-6z" fill="#f6dc8f"/></svg>Find Yo Zen</a>
- <nav><a href="#home">Temple</a><a href="#den">Zen Den</a><a href="#discover">Discover</a><a href="#my-zen">My Zen</a></nav>
+ <nav><a href="#home">Temple</a><a href="#walk">Walk</a><a href="#den">Zen Den</a><a href="#cosmos">Cosmos</a><a href="#discover">Discover</a><a href="#my-zen">My Zen</a></nav>
  <button class="snd" id="sndBtn" aria-label="Sound on" aria-pressed="true"></button>
 </div></header>
 
@@ -189,14 +210,14 @@ footer{border-top:1px solid var(--line)}
   <div>
    <h1>The Zen Master</h1>
    <div class="bubble" aria-live="polite">
-    <div class="who">Zen speaks</div>
+    <div class="who" style="display:flex;align-items:center;gap:10px;justify-content:space-between">Zen speaks <button class="chip" id="voiceBtn" aria-pressed="true" style="min-height:36px;padding:4px 12px;font-size:13px">Voice on</button></div>
     <p id="say">…</p><p id="cite"></p>
     <div class="opts" id="opts"></div>
    </div>
    <div class="legend">
     <span>Click him: <b>a new teaching</b></span><span>Crown to root: <b>7 chakra portals</b></span><span>Mala: <b>count beads</b></span><span>Hands: <b>breath</b></span><span>Ears: <b>sound</b></span><span>Cushion: <b>sit</b></span>
    </div>
-   <p style="margin-top:12px"><button class="btn alt" id="visionBtn" aria-pressed="false">Chakra vision</button> <a class="btn" href="#den" style="text-decoration:none;display:inline-flex;align-items:center">Enter his temple</a></p>
+   <p style="margin-top:12px"><button class="btn alt" id="visionBtn" aria-pressed="false">Chakra vision</button> <a class="btn" href="#walk" style="text-decoration:none;display:inline-flex;align-items:center">Walk the temple in 3D</a> <a class="btn alt" href="#den" style="text-decoration:none;display:inline-flex;align-items:center">Zen Den rooms</a></p>
   </div>
  </div></div>
 
@@ -348,6 +369,49 @@ footer{border-top:1px solid var(--line)}
  </div>
 </div></section>
 
+<!-- WALK -->
+<section id="v-walk" hidden>
+ <div class="walkbox" id="walkBox">
+  <div class="wload" id="walkLoad">Opening the temple doors…</div>
+  <div class="hud"><b>Walk the temple.</b> W A S D or arrows to walk, drag to look, Shift to run. On a phone, drag the left side to walk and the right side to look. Walk up to a glowing door or to the master.</div>
+  <div class="wprompt" data-prompt hidden><span>Enter <b></b></span><button class="btn" id="enterBtn">Enter (E)</button></div>
+  <div class="wsub" id="wsub" hidden></div>
+ </div>
+</section>
+
+<!-- COSMOS -->
+<section id="v-cosmos" class="band" hidden><div class="wrap">
+ <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
+ <h2>Cosmos Chamber</h2>
+ <p>Your astrology chart and Human Design bodygraph, calculated from where the planets were when you were born.</p>
+ <form id="birthForm" class="panel">
+  <div class="form">
+   <label>Name (optional)<input id="bName" autocomplete="off"></label>
+   <label>Birth date<input id="bDate" type="date" required></label>
+   <label>Birth time<input id="bTime" type="time" value="12:00"></label>
+   <label style="flex-direction:row;align-items:center;gap:8px;margin-top:22px"><input type="checkbox" id="bNoTime" style="width:20px;height:20px;min-height:0"> I don't know my birth time</label>
+  </div>
+  <div class="lbl">Birth place</div>
+  <div class="filters" style="margin-bottom:6px"><input id="bPlace" placeholder="City, e.g. Austin" list="cityList" style="flex:1 1 240px;border-radius:999px" autocomplete="off"><button type="button" class="btn alt" id="findPlace">Find place</button></div>
+  <datalist id="cityList"></datalist>
+  <div id="placeRes" class="filters"></div>
+  <div class="form">
+   <label>Latitude<input id="bLat" inputmode="decimal" value="30.2672"></label>
+   <label>Longitude<input id="bLon" inputmode="decimal" value="-97.7431"></label>
+   <label>Time zone<input id="bTz" list="tzList" value="America/Chicago"></label>
+  </div>
+  <datalist id="tzList"></datalist>
+  <p style="margin-top:16px"><button class="btn">Read my stars</button> <span class="small" id="cosmosMsg"></span></p>
+ </form>
+ <div id="cosmosOut" hidden style="margin-top:24px">
+  <div class="bubble"><div class="who">The master reads your chart</div><p id="reading" style="font-size:18px;margin:8px 0 0"></p></div>
+  <div class="filters" style="margin-top:20px"><button class="chip" data-ctab="astro" aria-pressed="true">Astrology</button><button class="chip" data-ctab="hd" aria-pressed="false">Human Design</button></div>
+  <div id="astroOut" class="two"><div class="wheel panel" id="wheel"></div><div><table class="pl" id="plTable"></table><div class="lbl">Element balance</div><div id="elems"></div></div></div>
+  <div id="hdOut" hidden><div class="two"><div class="bg panel" id="bodygraph"></div><div><div class="hdgrid" id="hdSum"></div><div class="lbl">Activations</div><div class="acts" id="hdActs"></div></div></div></div>
+  <p class="small" style="margin-top:16px">Planet positions come from astronomy-engine. Houses use the whole-sign system. Human Design uses the mean lunar node, so node gates can differ slightly from apps that use the true node. Charts are for self-reflection.</p>
+ </div>
+</div></section>
+
 <!-- DISCOVER -->
 <section id="v-discover" class="band" hidden><div class="wrap">
  <h2>Discover Austin</h2>
@@ -463,7 +527,8 @@ const ROOMS=[
  ["meditate","Meditation Room","Candle, gong and a timer that holds you."],
  ["chakras","Chakra Shrine","Seven energy centers, their tones and affirmations."],
  ["lantern","Lantern Garden","Write an intention and release it to the sky."],
- ["koan","Koan Room","Ancient riddles to sit with, and a journal."]
+ ["koan","Koan Room","Ancient riddles to sit with, and a journal."],
+ ["cosmos","Cosmos Chamber","Your astrology chart and Human Design."]
 ];
 const ICON={
  sound:`<ellipse cx="42" cy="60" rx="28" ry="6" fill="none"/><path d="M14 46 Q18 66 42 66 Q66 66 70 46Z"/><ellipse cx="42" cy="46" rx="28" ry="6"/><path d="M22 30 Q42 20 62 30 M28 22 Q42 14 56 22" opacity=".7"/>`,
@@ -472,7 +537,8 @@ const ICON={
  meditate:`<path d="M42 18 C48 28 48 34 42 38 C36 34 36 28 42 18Z" fill="currentColor"/><rect x="34" y="40" width="16" height="28" rx="2"/>`,
  chakras:`${[16,26,36,46,56,66].map(y=>`<circle cx="42" cy="${y}" r="4" fill="currentColor"/>`).join("")}<circle cx="42" cy="9" r="4"/>`,
  lantern:`<path d="M30 30 Q42 24 54 30 L56 58 Q42 64 28 58Z"/><path d="M36 64 v6 M48 64 v6 M42 14 v12"/>`,
- koan:`<path d="M20 20 h44 v44 h-44z"/><path d="M28 32 h28 M28 42 h28 M28 52 h18"/>`
+ koan:`<path d="M20 20 h44 v44 h-44z"/><path d="M28 32 h28 M28 42 h28 M28 52 h18"/>`,
+ cosmos:`<circle cx="42" cy="42" r="28"/><circle cx="42" cy="42" r="18" opacity=".6"/><path d="M42 14 V70 M14 42 H70" opacity=".5"/><circle cx="60" cy="30" r="4" fill="currentColor"/><circle cx="28" cy="52" r="3" fill="currentColor"/>`
 };
 const RIT=["Breathe for one minute","Move your body","Drink a big glass of water","Get outside","Unplug for 30 minutes"];
 
@@ -611,6 +677,7 @@ function master(){
      <path d="M276 236 Q268 248 272 262 M324 236 Q332 248 328 262" stroke="#7a4a2c" stroke-width="1.2" fill="none" opacity=".35"/>
      <path d="M264 266 Q300 300 336 266 Q330 300 300 312 Q270 300 264 266Z" fill="#e8e1d3" opacity=".9"/>
      <g id="beard">${beard}</g>
+     <ellipse id="mouthIn" cx="300" cy="272" rx="10" ry="0.4" fill="#2a0e06"/><path id="teeth" d="M292 270 h16" stroke="#efe6d4" stroke-width="2" opacity="0"/><path id="lip" d="M289 274 Q300 279 311 274" stroke="#8a4a2c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
      <path id="mouth" d="M287 270 Q300 276 313 270" stroke="#6b3a22" stroke-width="2.4" fill="none" stroke-linecap="round"/>
      ${must}${brow}
     </g>
@@ -638,7 +705,7 @@ function frame(){cx.clearRect(0,0,600,640);
 /* ================= master behaviour ================= */
 let busy=false,mode="menu",mtimer=null,score={},qi=0,lastMove=Date.now(),deep=false,lastFast=0,clicks=[],lidBase=.3;
 const tune=c=>document.documentElement.style.setProperty("--tune",c||(myF?`var(--${myF})`:G2));
-function say(t,opts=[],cite=""){$("#say").textContent=t;$("#cite").textContent=cite?"— "+cite:"";$("#opts").innerHTML=opts.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join("");$("#opts").onclick=e=>{const b=e.target.closest("[data-o]");if(b)opts[+b.dataset.o][1]()}}
+function say(t,opts=[],cite="",silent=false){$("#say").textContent=t;if(!silent)speak(t);$("#cite").textContent=cite?"— "+cite:"";$("#opts").innerHTML=opts.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join("");$("#opts").onclick=e=>{const b=e.target.closest("[data-o]");if(b)opts[+b.dataset.o][1]()}}
 const greet=()=>{const h=new Date().getHours();return h<5?"The temple glows at night, and so do you.":h<12?"Good morning, traveler. The bells are fresh.":h<17?"Good afternoon, traveler. The sun is high over the temple.":h<21?"Good evening, traveler. The lanterns are being lit.":"The night is quiet, traveler. A good time to listen."};
 function menu(t){mode="menu";say(t||greet()+" What does your spirit seek?",[["Teach me",quote],["Read my frequency",startQuiz],["Breathe with me",meditate],["Enter the Zen Den",()=>location.hash="den"]].concat(myF?[[`My frequency: ${F[myF].name}`,()=>result(myF)]]:[]))}
 function quote(){const q=pick(QUOTES);mode="menu";smile();say(q[0],[["Another teaching",quote],["Read my frequency",startQuiz],["Enter the Zen Den",()=>location.hash="den"]],q[1]);burst(300,270,G2,18)}
@@ -651,10 +718,10 @@ function smile(){const m=$("#mouth");m.setAttribute("d","M285 268 Q300 280 315 2
 function meditate(){if(busy)return;busy=true;mode="med";setLids(1);let i=0;const ph=[["Breathe in",1.25],["Hold",1.25],["Breathe out",1],["Hold",1]],au=$("#aura");
  say("Sit with me. Four rounds of box breathing. Follow my light.",[["Stop",stop]]);
  const tick=()=>{if(i>=16){stop();burst();chime();bump("minutes",1);menu("Beautiful. Notice how you feel. The temple is always here.");return}
-  const[w,s]=ph[i%4];$("#say").textContent=`${w}…  round ${Math.floor(i/4)+1} of 4`;au.style.transform=`scale(${s})`;if(i%4===0&&!muted)tone(220,4,.06);i++;mtimer=setTimeout(tick,4000)};
+  const[w,s]=ph[i%4];$("#say").textContent=`${w}…  round ${Math.floor(i/4)+1} of 4`;speak(w);au.style.transform=`scale(${s})`;if(i%4===0&&!muted)tone(220,4,.06);i++;mtimer=setTimeout(tick,4000)};
  mtimer=setTimeout(tick,1200);
  function stop(){clearTimeout(mtimer);busy=false;setLids(lidBase);au.style.transform="";if(i<16)menu("Any breath is a good breath. What next?")}}
-function enterDeep(){if(deep||busy)return;deep=true;$("#stage").classList.add("deep");setLids(1);$("#aura").style.transform="scale(1.2)";say("…the master has drifted into deep meditation and is floating. Move gently to wake him.",[])}
+function enterDeep(){if(deep||busy)return;deep=true;$("#stage").classList.add("deep");setLids(1);$("#aura").style.transform="scale(1.2)";say("…the master has drifted into deep meditation and is floating. Move gently to wake him.",[],"",true)}
 function wake(){if(!deep)return;deep=false;$("#stage").classList.remove("deep");setLids(lidBase);$("#aura").style.transform="";menu("Ah. You have returned. I was visiting the stars.")}
 function blink(){if(!busy&&!deep){setLids(1);setTimeout(()=>{if(!busy&&!deep)setLids(lidBase)},140)}setTimeout(blink,2600+Math.random()*3800)}
 function enlightenment(){const st=$("#stage");st.classList.add("rainbow","deep");CK.forEach((c,i)=>setTimeout(()=>{burst(300,c.y,c.c,20);if(!muted)tone(c.hz,1.2,.06)},i*180));say("Seven touches… you have awakened all seven chakras! Enlightenment mode.",[["Return to earth",()=>{st.classList.remove("rainbow","deep");menu()}]]);setTimeout(()=>{st.classList.remove("rainbow","deep")},9000)}
@@ -766,14 +833,15 @@ function myzen(){
  $("#rituals").insertAdjacentHTML("beforeend",`<p class="small" style="margin-top:10px">Streak: <b style="color:var(--gold2)">${n} day${n===1?"":"s"}</b></p>`);
  journal("#myJournal");
  const sv=S.filter(s=>saved.includes(s.id));$("#saved").innerHTML=sv.length?sv.map(card).join(""):`<div class="empty">Tap the heart on any spot to save it here.</div>`}
-const VIEWS=["home","den","sound","breath","garden","meditate","chakras","lantern","koan","discover","my-zen"];
-const NAVOF={home:"home",den:"den",sound:"den",breath:"den",garden:"den",meditate:"den",chakras:"den",lantern:"den",koan:"den",discover:"discover","my-zen":"my-zen"};
+const VIEWS=["home","walk","den","sound","breath","garden","meditate","chakras","lantern","koan","cosmos","discover","my-zen"];
+const NAVOF={home:"home",den:"den",sound:"den",breath:"den",garden:"den",meditate:"den",chakras:"den",lantern:"den",koan:"den",cosmos:"cosmos",walk:"walk",discover:"discover","my-zen":"my-zen"};
 function route(){const h=location.hash.slice(1),v=VIEWS.includes(h)?h:"home";
  VIEWS.forEach(k=>$("#v-"+k).hidden=k!==v);
  $$("nav a").forEach(a=>a.hash==="#"+NAVOF[v]?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
  if(v!=="breath"&&bTimer)breathStop(false);
  if(v==="discover")list();if(v==="my-zen")myzen();if(v==="home"){picks();requestAnimationFrame(size)}
  if(v==="sound"){soundUI();requestAnimationFrame(soundLoop)}if(v==="breath")breathUI();if(v==="garden"){toolsUI();requestAnimationFrame(sandInit)}
+ if(v==="walk")walkOpen();else walkClose();if(v==="cosmos")cosmosOpen();
  if(v==="meditate")medUI();if(v==="chakras")shrine();if(v==="lantern")sky();if(v==="koan")journal("#journal");
  scrollTo(0,0)}
 
@@ -842,8 +910,102 @@ $("#breathGo").onclick=breathGo;$("#medGo").onclick=medGo;$("#drawKoan").onclick
 ["#q","#price","#setting"].forEach(s=>$(s).addEventListener("input",list));
 addEventListener("resize",()=>{if(!$("#v-garden").hidden&&gx){const img=null;sandInit()}});
 
+
+/* ================= voice + moving mouth ================= */
+let voiceOn=store.get("voice",true),speakUntil=0,mouthO=0,pulse=0,mouthRAF=0;
+function pickVoice(){const vs=speechSynthesis.getVoices();return vs.find(v=>/^en/i.test(v.lang)&&/Daniel|Arthur|Rishi|Aaron|Fred|Google UK English Male|Male/i.test(v.name))||vs.find(v=>/^en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))}
+if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=()=>{};
+function speak(t){if(!t)return;let dur=Math.min(14000,400+t.length*62);
+ try{if(voiceOn&&!muted&&"speechSynthesis" in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.84;u.pitch=.6;u.volume=Math.min(1,vol+.3);const v=pickVoice();if(v)u.voice=v;u.onboundary=()=>{pulse=1};u.onstart=()=>{speakUntil=performance.now()+Math.max(dur,t.length*80)};u.onend=()=>{speakUntil=performance.now()+80};speechSynthesis.speak(u)}}catch(e){}
+ speakUntil=performance.now()+dur;if(!mouthRAF)mouthRAF=requestAnimationFrame(mouthLoop)}
+function mouthLoop(now){const on=now<speakUntil;const target=on?.22+.78*Math.abs(Math.sin(now/68))*(.55+.45*Math.sin(now/210))+pulse*.35:0;pulse*=.86;mouthO+=(target-mouthO)*.4;const o=Math.min(1,mouthO);
+ const mi=$("#mouthIn"),lp=$("#lip"),bd=$("#beard"),th=$("#teeth");
+ if(mi){mi.setAttribute("ry",(.4+o*7.5).toFixed(2));mi.setAttribute("cy",(272+o*2.6).toFixed(2));mi.setAttribute("rx",(10-o*1.5).toFixed(2));lp.setAttribute("d",`M289 ${(274+o*9).toFixed(1)} Q300 ${(279+o*11).toFixed(1)} 311 ${(274+o*9).toFixed(1)}`);bd.setAttribute("transform",`translate(0 ${(o*5).toFixed(2)})`);th.setAttribute("opacity",o>.35?.8:0)}
+ if(on||mouthO>.01)mouthRAF=requestAnimationFrame(mouthLoop);else{mouthRAF=0;mouthO=0}}
+function voiceUI(){const b=$("#voiceBtn");b.setAttribute("aria-pressed",voiceOn);b.textContent=voiceOn?"Voice on":"Voice off"}
+$("#voiceBtn").onclick=()=>{voiceOn=!voiceOn;store.set("voice",voiceOn);voiceUI();if(!voiceOn&&"speechSynthesis" in window)speechSynthesis.cancel();else speak($("#say").textContent)};
+
+/* ================= 3D temple walk ================= */
+const WALKCOL={sound:"#3a8fe0",breath:"#4fb487",garden:"#e9dfc8",meditate:"#f2b632",chakras:"#b45ad6",lantern:"#f2a03b",koan:"#f6dc8f",cosmos:"#6a4fd0"};
+let temple=null,walkLoading=false,wsubT=0;
+function masterTexture(){const sc=$("#scene").cloneNode(true);["#back","#mid"].forEach(q=>sc.querySelector(q)?.remove());sc.querySelectorAll(".ck").forEach(e=>e.remove());
+ ["#front","#head","#beard"].forEach(q=>sc.querySelector(q)?.removeAttribute("transform"));sc.querySelectorAll(".iris").forEach(g=>g.removeAttribute("transform"));
+ sc.setAttribute("xmlns","http://www.w3.org/2000/svg");sc.setAttribute("width","600");sc.setAttribute("height","640");return new XMLSerializer().serializeToString(sc).replace(/var\(--tune\)/g,G2)}
+async function walkOpen(){if(temple){temple.start();return}if(walkLoading)return;walkLoading=true;
+ try{const mod=await import("./walk.js");temple=mod.createTemple({el:$("#walkBox"),rooms:ROOMS.map(([id,name])=>({id,name,color:WALKCOL[id]})),masterSVG:masterTexture(),onEnter:walkEnter,reducedMotion:RM});$("#walkLoad").hidden=true;if(!$("#v-walk").hidden)temple.start()}
+ catch(e){console.warn(e);$("#walkLoad").textContent="The 3D temple needs WebGL. Try a recent browser on your computer or phone."}walkLoading=false}
+function walkClose(){if(temple)temple.stop()}
+function walkEnter(id){if(id==="master"){const q=pick(QUOTES),ws=$("#wsub");ws.hidden=false;ws.innerHTML=`<div class="who">The master speaks</div><p style="margin:6px 0 4px">${esc(q[0])}</p><div class="small">— ${esc(q[1])}</div>`;speak(q[0]);burst();clearTimeout(wsubT);wsubT=setTimeout(()=>ws.hidden=true,10000);return}location.hash=id}
+$("#enterBtn").onclick=()=>temple&&temple.enterNear();
+
+/* ================= cosmos: astrology + human design ================= */
+const CITIES=[["Austin, TX",30.2672,-97.7431,"America/Chicago"],["Dallas, TX",32.7767,-96.797,"America/Chicago"],["Houston, TX",29.7604,-95.3698,"America/Chicago"],["New York, NY",40.7128,-74.006,"America/New_York"],["Miami, FL",25.7617,-80.1918,"America/New_York"],["Chicago, IL",41.8781,-87.6298,"America/Chicago"],["Denver, CO",39.7392,-104.9903,"America/Denver"],["Los Angeles, CA",34.0522,-118.2437,"America/Los_Angeles"],["San Francisco, CA",37.7749,-122.4194,"America/Los_Angeles"],["Seattle, WA",47.6062,-122.3321,"America/Los_Angeles"],["Toronto",43.6532,-79.3832,"America/Toronto"],["Vancouver",49.2827,-123.1207,"America/Vancouver"],["Mexico City",19.4326,-99.1332,"America/Mexico_City"],["Tulum",20.2114,-87.4654,"America/Cancun"],["São Paulo",-23.5505,-46.6333,"America/Sao_Paulo"],["Buenos Aires",-34.6037,-58.3816,"America/Argentina/Buenos_Aires"],["London",51.5074,-.1278,"Europe/London"],["Paris",48.8566,2.3522,"Europe/Paris"],["Berlin",52.52,13.405,"Europe/Berlin"],["Amsterdam",52.3676,4.9041,"Europe/Amsterdam"],["Budapest",47.4979,19.0402,"Europe/Budapest"],["Barcelona",41.3874,2.1686,"Europe/Madrid"],["Lisbon",38.7223,-9.1393,"Europe/Lisbon"],["Ibiza",38.9067,1.4206,"Europe/Madrid"],["Tel Aviv",32.0853,34.7818,"Asia/Jerusalem"],["Dubai",25.2048,55.2708,"Asia/Dubai"],["Mumbai",19.076,72.8777,"Asia/Kolkata"],["Bangkok",13.7563,100.5018,"Asia/Bangkok"],["Bali (Denpasar)",-8.6705,115.2126,"Asia/Makassar"],["Tokyo",35.6762,139.6503,"Asia/Tokyo"],["Sydney",-33.8688,151.2093,"Australia/Sydney"]];
+let CM=null,cosmosInit=false;
+async function loadCosmos(){if(CM)return CM;if(!window.Astronomy)await new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js";sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)});CM=await import("./cosmos.js");return CM}
+function setPlace(name,lat,lon,tz){$("#bPlace").value=name;$("#bLat").value=(+lat).toFixed(4);$("#bLon").value=(+lon).toFixed(4);$("#bTz").value=tz;$("#placeRes").innerHTML=""}
+function cosmosOpen(){if(cosmosInit)return;cosmosInit=true;
+ $("#cityList").innerHTML=CITIES.map(c=>`<option value="${c[0]}">`).join("");
+ try{$("#tzList").innerHTML=Intl.supportedValuesOf("timeZone").map(z=>`<option value="${z}">`).join("")}catch(e){}
+ const b=store.get("birth",null);if(b){$("#bName").value=b.name||"";$("#bDate").value=b.date;$("#bTime").value=b.time||"12:00";$("#bNoTime").checked=!!b.noTime;setPlace(b.place||"",b.lat,b.lon,b.tz);readStars()}
+ loadCosmos().catch(()=>{$("#cosmosMsg").textContent="The star library could not load. Check your connection."})}
+$("#bPlace").addEventListener("input",e=>{const c=CITIES.find(c=>c[0]===e.target.value);if(c)setPlace(...c)});
+$("#findPlace").onclick=async()=>{const q=$("#bPlace").value.trim();if(!q)return;const c=CITIES.find(c=>c[0].toLowerCase().startsWith(q.toLowerCase()));$("#placeRes").innerHTML=`<span class="small">Searching…</span>`;
+ try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);const j=await r.json();const L=(j.results||[]);
+  $("#placeRes").innerHTML=L.length?L.map((p,i)=>`<button type="button" class="chip" data-place="${i}">${esc([p.name,p.admin1,p.country].filter(Boolean).join(", "))}</button>`).join(""):`<span class="small">No match. Try a bigger nearby city, or type coordinates below.</span>`;
+  $("#placeRes").onclick=e=>{const bt=e.target.closest("[data-place]");if(bt){const p=L[+bt.dataset.place];setPlace([p.name,p.admin1,p.country].filter(Boolean).join(", "),p.latitude,p.longitude,p.timezone)}}}
+ catch(e){if(c){setPlace(...c)}else $("#placeRes").innerHTML=`<span class="small">Place search isn't available in this preview. Pick a city from the list, or enter latitude, longitude and time zone below.</span>`}};
+$("#birthForm").onsubmit=e=>{e.preventDefault();store.set("birth",{name:$("#bName").value.trim(),date:$("#bDate").value,time:$("#bTime").value,noTime:$("#bNoTime").checked,place:$("#bPlace").value,lat:$("#bLat").value,lon:$("#bLon").value,tz:$("#bTz").value.trim()});readStars(true)};
+document.addEventListener("click",e=>{const t=e.target.closest("[data-ctab]");if(!t)return;$$("[data-ctab]").forEach(b=>b.setAttribute("aria-pressed",b===t));$("#astroOut").hidden=t.dataset.ctab!=="astro";$("#hdOut").hidden=t.dataset.ctab!=="hd"});
+async function readStars(talk){const m=$("#cosmosMsg");m.textContent="Reading the sky…";
+ try{const C=await loadCosmos();const b=store.get("birth");if(!b||!b.date)throw new Error("Add your birth date.");
+  const[y,mo,d]=b.date.split("-").map(Number),[h,mi]=(b.noTime?"12:00":b.time||"12:00").split(":").map(Number),lat=parseFloat(b.lat),lon=parseFloat(b.lon);
+  if(!(Math.abs(lat)<=90&&Math.abs(lon)<=180))throw new Error("Check the latitude and longitude.");
+  try{new Intl.DateTimeFormat("en-US",{timeZone:b.tz})}catch(x){throw new Error("Time zone not recognised. Try one like America/Chicago.")}
+  const utc=C.zonedToUTC(y,mo,d,h,mi,b.tz),pos=C.positions(utc),ang=b.noTime?null:C.angles(utc,lat,lon),hd=C.humanDesign(utc);
+  renderAstro(C,pos,ang);renderHD(C,hd);
+  const S_=k=>C.SIGNS[C.signOf(pos[k])],nm=b.name?b.name+", ":"";
+  const txt=`${nm}your Sun is in ${S_("sun")}, ${C.SIGN_WORDS[C.signOf(pos.sun)]}. Your Moon is in ${S_("moon")}${ang?`, and ${C.SIGNS[C.signOf(ang.asc)]} is rising`:""}. In Human Design you are a ${hd.type} with ${hd.authority} authority and a ${hd.profile} profile. Your strategy: ${hd.strategy.toLowerCase()}.`;
+  $("#reading").textContent=txt+(ang?"":" Add a birth time to reveal your rising sign and houses.");$("#cosmosOut").hidden=false;m.textContent="";if(talk){speak(txt);$("#cosmosOut").scrollIntoView({behavior:RM?"auto":"smooth"})}}
+ catch(err){m.textContent=err.message||"Something went wrong."}}
+function renderAstro(C,pos,ang){const asc=ang?ang.asc:Math.floor(pos.sun/30)*30,P=(l,r)=>{const t=(180+l-asc)*Math.PI/180;return[300+r*Math.cos(t),300-r*Math.sin(t)]},f=v=>v.toFixed(1);
+ const EL=["#e5483f","#4fb487","#8fb8ff","#6a4fd0"],ELB=["#3a1612","#16281c","#17263a","#1d1838"];
+ let o=`<svg viewBox="0 0 600 600" role="img" aria-label="Natal chart wheel">`;
+ for(let i=0;i<12;i++){const a0=i*30,a1=a0+30,[x0,y0]=P(a0,290),[x1,y1]=P(a1,290),[x2,y2]=P(a1,245),[x3,y3]=P(a0,245);o+=`<path d="M${f(x0)} ${f(y0)} A290 290 0 0 0 ${f(x1)} ${f(y1)} L${f(x2)} ${f(y2)} A245 245 0 0 1 ${f(x3)} ${f(y3)}Z" fill="${ELB[i%4]}" stroke="${G}" stroke-width="1"/>`;const[gx,gy]=P(a0+15,267);o+=`<text x="${f(gx)}" y="${f(gy)}" text-anchor="middle" dominant-baseline="central" font-size="22" fill="${EL[i%4]}" class="gl">${C.SIGN_GLYPH[i]}</text>`}
+ for(let d=0;d<360;d+=5){const[a,b2]=P(d,245),[c,e]=P(d,d%30?238:230);o+=`<line x1="${f(a)}" y1="${f(b2)}" x2="${f(c)}" y2="${f(e)}" stroke="${G}" opacity=".6"/>`}
+ o+=`<circle cx="300" cy="300" r="245" fill="none" stroke="${G}"/><circle cx="300" cy="300" r="150" fill="#0d1913" stroke="${G}" opacity=".9"/>`;
+ const s0=C.signOf(asc);for(let hN=0;hN<12;hN++){const l=(s0+hN)*30,[a,b2]=P(l,150),[c,e]=P(l,230);o+=`<line x1="${f(a)}" y1="${f(b2)}" x2="${f(c)}" y2="${f(e)}" stroke="${G}" opacity=".3"/>`;const[nx,ny]=P(l+15,138);o+=`<text x="${f(nx)}" y="${f(ny)}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="${G}" opacity=".7">${hN+1}</text>`}
+ const asp=C.aspects(Object.fromEntries(Object.entries(pos).filter(([k])=>k!=="node")));
+ asp.forEach(a=>{const[x1,y1]=P(pos[a.a],150),[x2,y2]=P(pos[a.b],150);o+=`<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${a.c}" stroke-width="1.4" opacity="${(1-a.orb/10).toFixed(2)}"/>`});
+ if(ang){[["ASC",ang.asc],["DSC",ang.asc+180],["MC",ang.mc],["IC",ang.mc+180]].forEach(([n,l])=>{const[a,b2]=P(l,150),[c,e]=P(l,298),[tx,ty]=P(l,160);o+=`<line x1="${f(a)}" y1="${f(b2)}" x2="${f(c)}" y2="${f(e)}" stroke="${G2}" stroke-width="${n==="ASC"||n==="MC"?2.5:1}"/>`;if(n==="ASC"||n==="MC")o+=`<text x="${f(tx)}" y="${f(ty)}" font-size="12" fill="${G2}" text-anchor="middle" font-family="Cinzel,serif">${n}</text>`})}
+ const order=C.BODIES.map(b=>({...b,l:pos[b.k]})).sort((a,b)=>a.l-b.l);order.forEach((b,i)=>{b.d=b.l;if(i&&b.d-order[i-1].d<8)b.d=order[i-1].d+8});
+ order.forEach(b=>{const[tx,ty]=P(b.l,245),[tx2,ty2]=P(b.l,228),[x,y]=P(b.d,204),[dx,dy]=P(b.d,176);o+=`<line x1="${f(tx)}" y1="${f(ty)}" x2="${f(tx2)}" y2="${f(ty2)}" stroke="${G2}" stroke-width="2"/><circle cx="${f(x)}" cy="${f(y)}" r="15" fill="#12211a" stroke="${G}"/><text x="${f(x)}" y="${f(y)}" text-anchor="middle" dominant-baseline="central" font-size="17" fill="${G2}" class="gl">${b.g}</text><text x="${f(dx)}" y="${f(dy)}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#b9b29d">${Math.floor(b.l%30)}°</text>`});
+ $("#wheel").innerHTML=o+"</svg>";
+ const house=l=>((C.signOf(l)-s0+12)%12)+1;
+ $("#plTable").innerHTML=`<tr><th>Planet</th><th>Sign</th><th>House</th></tr>`+(ang?`<tr><td><b>Rising</b></td><td><span class="gl">${C.SIGN_GLYPH[C.signOf(ang.asc)]}</span> ${C.SIGNS[C.signOf(ang.asc)]} ${C.fmtDeg(ang.asc)}</td><td>1</td></tr>`:"")+C.BODIES.map(b=>{const sg=C.signOf(pos[b.k]);return `<tr><td><span class="gl">${b.g}</span> ${b.n}</td><td><span class="gl">${C.SIGN_GLYPH[sg]}</span> ${C.SIGNS[sg]} ${C.fmtDeg(pos[b.k])}<div class="small">${b.m}, ${C.SIGN_WORDS[sg]}</div></td><td>${ang?house(pos[b.k]):"–"}</td></tr>`}).join("");
+ const cnt=[0,0,0,0];C.BODIES.filter(b=>b.k!=="node").forEach(b=>cnt[C.signOf(pos[b.k])%4]++);
+ $("#elems").innerHTML=C.SIGN_ELEMENT.map((e,i)=>`<div style="display:grid;grid-template-columns:70px 1fr 24px;gap:10px;align-items:center;margin:6px 0"><span class="small">${e}</span><div class="bar" style="width:${cnt[i]*10}%;background:${EL[i]}"></div><b style="color:var(--gold2)">${cnt[i]}</b></div>`).join("")}
+const HDPOS={head:[150,48],ajna:[150,112],throat:[150,195],g:[150,282],heart:[212,318],spleen:[46,392],sp:[254,392],sacral:[150,392],root:[150,482]};
+const HDCOL={head:"#f5d66b",ajna:"#6fbf73",throat:"#c8a26b",g:"#f5d66b",heart:"#e5483f",sacral:"#e5483f",sp:"#c8a26b",spleen:"#c8a26b",root:"#c8a26b"};
+function renderHD(C,hd){let o=`<svg viewBox="0 0 300 530" role="img" aria-label="Human Design bodygraph">`;const pairs={};
+ C.CHANNELS.forEach(([a,b])=>{const k=[C.centerOf(a),C.centerOf(b)].sort().join("-");(pairs[k]=pairs[k]||[]).push([a,b])});
+ Object.entries(pairs).forEach(([k,list])=>{const[c1,c2]=k.split("-"),[x1,y1]=HDPOS[c1],[x2,y2]=HDPOS[c2],L=Math.hypot(x2-x1,y2-y1),nx=-(y2-y1)/L,ny=(x2-x1)/L;
+  list.forEach(([a,b],i)=>{const off=(i-(list.length-1)/2)*8,on=hd.chans.some(c=>c[0]===a&&c[1]===b),ha=hd.gates.has(a),hb=hd.gates.has(b);
+   const X1=x1+nx*off,Y1=y1+ny*off,X2=x2+nx*off,Y2=y2+ny*off,mx=(X1+X2)/2,my=(Y1+Y2)/2;
+   o+=`<line x1="${X1}" y1="${Y1}" x2="${X2}" y2="${Y2}" stroke="#2a3a30" stroke-width="5"/>`;
+   const ga=C.centerOf(a)===c1?[X1,Y1]:[X2,Y2],gb=C.centerOf(b)===c1?[X1,Y1]:[X2,Y2];
+   if(ha)o+=`<line x1="${ga[0]}" y1="${ga[1]}" x2="${mx}" y2="${my}" stroke="${on?G2:"#9a7f3c"}" stroke-width="5"/>`;
+   if(hb)o+=`<line x1="${gb[0]}" y1="${gb[1]}" x2="${mx}" y2="${my}" stroke="${on?G2:"#9a7f3c"}" stroke-width="5"/>`})});
+ const shp={head:"M150 14 L112 70 L188 70Z",ajna:"M112 88 L188 88 L150 140Z",throat:"M122 168 h56 v56 h-56Z",g:"M150 244 L188 282 L150 320 L112 282Z",heart:"M194 330 L232 330 L214 300Z",spleen:"M16 352 L16 432 L80 392Z",sp:"M284 352 L284 432 L220 392Z",sacral:"M118 362 h64 v62 h-64Z",root:"M118 452 h64 v60 h-64Z"};
+ Object.entries(shp).forEach(([c,d])=>{const def=hd.defined.has(c);o+=`<path d="${d}" fill="${def?HDCOL[c]:"#0f1c16"}" stroke="${def?"#fff6d8":G}" stroke-width="${def?2:1.4}"${def?` filter="url(#hdg)"`:""}/>`});
+ o=o.replace(`<svg viewBox="0 0 300 530" role="img" aria-label="Human Design bodygraph">`,`<svg viewBox="0 0 300 530" role="img" aria-label="Human Design bodygraph"><defs><filter id="hdg" x="-.3" y="-.3" width="1.6" height="1.6"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f6dc8f" flood-opacity=".5"/></filter></defs>`);
+ $("#bodygraph").innerHTML=o+"</svg>";
+ $("#hdSum").innerHTML=[["Type",hd.type],["Strategy",hd.strategy],["Inner authority",hd.authority],["Profile",hd.profile],["Definition",hd.definition],["Signature",hd.signature],["Not-self theme",hd.notSelf],["Cross gates",hd.cross],["Defined centers",[...hd.defined].map(c=>C.CENTERS[c].n).join(", ")||"None"]].map(([l,v])=>`<div class="stat"><span class="small">${l}</span><b>${esc(v)}</b></div>`).join("");
+ const GL={sun:"☉",earth:"⊕",moon:"☽",node:"☊",snode:"☋",mercury:"☿",venus:"♀",mars:"♂",jupiter:"♃",saturn:"♄",uranus:"♅",neptune:"♆",pluto:"♇"};
+ const col=(t,L,c)=>`<div><div class="lbl" style="color:${c}">${t}</div>${L.map(a=>`<span><span><span class="gl" style="font-size:16px">${GL[a.k]}︎</span> ${a.n}</span><b style="color:${c}">${a.gate}.${a.line}</b></span>`).join("")}</div>`;
+ $("#hdActs").innerHTML=col("Design (unconscious)",hd.des,"#e5483f")+col("Personality (conscious)",hd.pers,G2)}
+
 /* ================= start ================= */
-$("#scene").innerHTML=master();setLids(lidBase);tune();setMute(false);doors();freqs();menu();
+$("#scene").innerHTML=master();setLids(lidBase);tune();setMute(false);voiceUI();doors();freqs();menu();
 const ro=new ResizeObserver(size);ro.observe(cv);size();
 if(RM)frame();else requestAnimationFrame(frame);
 setTimeout(blink,2500);
