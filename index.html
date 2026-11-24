@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Find Yo Zen</title>
 <meta name="description" content="Meet the Zen master, enter his temple, and find your frequency.">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -189,6 +190,14 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
 .hdgrid .stat{text-align:left}.hdgrid .stat b{font-size:18px;line-height:1.3}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:14px}
 .acts div span{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}
+.r3d{position:relative;height:min(62vh,540px);border-radius:22px;overflow:hidden;border:1px solid var(--line);margin:6px 0 20px;background:radial-gradient(ellipse at 50% 40%,#16301f,#08110c)}
+.r3d::before{content:"Lighting the room…";position:absolute;inset:0;display:grid;place-items:center;font:600 18px Cinzel,serif;color:var(--gold2);opacity:.7}
+.r3d.on::before{display:none}
+.r3hint{position:absolute;left:12px;bottom:12px;z-index:2;background:rgba(9,18,14,.78);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;color:var(--soft);pointer-events:none}
+#sand{position:absolute!important;left:-10000px;top:0;width:1280px!important;height:800px}
+.orbwrap .r3d{position:absolute;inset:0;height:auto;margin:0;border:0;border-radius:inherit}
+.orbwrap{min-height:min(62vh,520px)!important;padding:0!important;overflow:hidden}
+.orbwrap .orbtxt{z-index:2;bottom:16px;text-shadow:0 2px 12px #000}
 [hidden]{display:none!important}
 @media(max-width:860px){.temple .wrap,.two,.shrine{grid-template-columns:minmax(0,1fr)}.stage{max-width:460px}}
 @media(max-width:600px){nav{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{padding:8px 10px;font-size:13px;flex:none;min-height:40px}header .wrap{row-gap:2px;padding-bottom:4px}#say{font-size:17px}}
@@ -265,8 +274,9 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
 <section id="v-sound" class="band" hidden><div class="wrap">
  <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
  <h2>Sound Chamber</h2>
- <div class="two">
-  <div class="panel bowlbox"><canvas id="bowlCv"></canvas>
+ <div class="r3d" id="r3d-sound"><div class="r3hint">Tap the bowl to strike it · drag to look around</div></div>
+ <div>
+  <div class="panel bowlbox" hidden><canvas id="bowlCv"></canvas>
    <svg id="bowl" viewBox="0 0 300 200" role="button" tabindex="0" aria-label="Strike the singing bowl">
     <defs><linearGradient id="bz" x1="0" x2="1"><stop offset="0" stop-color="#5a3a14"/><stop offset=".35" stop-color="#e2b25a"/><stop offset=".55" stop-color="#f6dc8f"/><stop offset="1" stop-color="#6b4416"/></linearGradient></defs>
     <ellipse cx="150" cy="186" rx="110" ry="10" fill="#000" opacity=".4"/>
@@ -293,7 +303,7 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
  <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
  <h2>Breath Hall</h2>
  <div class="two">
-  <div class="panel orbwrap"><div class="orb" id="orb2"></div><div class="orbtxt" id="orbTxt">Choose a breath</div></div>
+  <div class="panel orbwrap"><div class="r3d" id="r3d-breath"></div><div class="orb" id="orb2" style="opacity:0;position:absolute"></div><div class="orbtxt" id="orbTxt">Choose a breath</div></div>
   <div>
    <div class="lbl">Pattern</div><div class="filters" id="patterns"></div>
    <p id="patDesc"></p>
@@ -310,7 +320,8 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
  <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
  <h2>Zen Garden</h2>
  <div class="filters" id="tools"></div>
- <canvas id="sand" aria-label="Sand garden. Drag to rake, tap to place stones."></canvas>
+ <div class="r3d" id="r3d-garden" style="height:min(66vh,580px)"><div class="r3hint">Drag across the sand to rake · tap to place</div></div>
+ <canvas id="sand" aria-hidden="true"></canvas>
  <p class="small" style="margin-top:10px">Drag to rake. Tap with Stone or Ripple to place. Nothing here is permanent, and that is the point.</p>
 </div></section>
 
@@ -318,6 +329,7 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
 <section id="v-meditate" class="band" hidden><div class="wrap">
  <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
  <h2>Meditation Room</h2>
+ <div class="r3d" id="r3d-meditate"><div class="r3hint">The candle and incense stir when you begin</div></div>
  <div class="two">
   <div class="timer">
    <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="rgba(217,180,90,.2)" stroke-width="6"/><circle id="ring" cx="100" cy="100" r="90" fill="none" stroke="#f6dc8f" stroke-width="6" stroke-linecap="round" stroke-dasharray="565.5" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
@@ -338,7 +350,7 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
  <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
  <h2>Chakra Shrine</h2>
  <div class="shrine">
-  <svg id="shrineSvg" viewBox="0 0 300 440" aria-label="Seven chakras on a meditating figure"></svg>
+  <div><div class="r3d" id="r3d-chakras" style="margin:0"><div class="r3hint">Tap a chakra wheel</div></div><svg id="shrineSvg" viewBox="0 0 300 440" hidden></svg></div>
   <div class="panel" id="ckPanel"></div>
  </div>
  <p class="small" style="margin-top:14px">Chakra frequencies come from contemplative tradition. Use them to relax, not as medical treatment.</p>
@@ -348,7 +360,8 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
 <section id="v-lantern" class="band" hidden><div class="wrap">
  <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
  <h2>Lantern Garden</h2>
- <div class="sky" id="sky"></div>
+ <div class="r3d" id="r3d-lantern"><div class="r3hint">Your lanterns drift over the lake · drag to look around</div></div>
+ <div class="sky" id="sky" hidden></div>
  <form id="lanForm" class="filters" style="margin-top:14px">
   <input id="lanTxt" maxlength="80" placeholder="Write an intention to release…" aria-label="Intention" style="flex:1 1 260px;border-radius:999px">
   <button class="btn">Release lantern</button>
@@ -361,7 +374,8 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
  <h2>Koan Room</h2>
  <div class="two">
   <div>
-   <div class="flip"><div class="fcard" id="fcard"><div class="face back"><p>Draw a koan</p></div><div class="face front"><p id="koanTxt"></p></div></div></div>
+   <div class="r3d" id="r3d-koan" style="height:min(48vh,420px)"><div class="r3hint">Tap the scroll to draw a koan</div></div>
+   <div class="flip" hidden><div class="fcard" id="fcard"><div class="face back"><p>Draw a koan</p></div><div class="face front"><p id="koanTxt"></p></div></div></div>
    <p style="margin-top:14px"><button class="btn" id="drawKoan">Draw a koan</button></p>
    <p class="small">A koan is a riddle with no logical answer. Sit with it. Notice what arises.</p>
   </div>
@@ -389,6 +403,7 @@ table.pl th{font:600 13px Cinzel,serif;color:var(--gold)}
  <div class="room-head"><a class="back" href="#den">← Zen Den</a></div>
  <h2>Cosmos Chamber</h2>
  <p>Your astrology chart and Human Design bodygraph, calculated from where the planets were when you were born.</p>
+ <div class="r3d" id="r3d-cosmos"><div class="r3hint">The planets move to your birth chart after you read your stars</div></div>
  <form id="birthForm" class="panel">
   <div class="form">
    <label>Name (optional)<input id="bName" autocomplete="off"></label>
@@ -770,7 +785,7 @@ let beatSel=0,ambSel=null,ripples=[];
 function soundUI(){$("#oms").innerHTML=Object.entries(CHANTS).map(([k,v])=>`<button class="chip" data-om="${k}">${v[0]}</button>`).join("");$("#notes").innerHTML=CK.map(c=>`<button class="chip" data-note="${c.k}" aria-pressed="${note.k===c.k}"><span class="tag" style="background:${c.c};padding:0 7px">&nbsp;</span>${c.n} ${c.hz}</button>`).join("");
  $("#beats").innerHTML=BEATS.map(([l,v])=>`<button class="chip" data-beat="${v}" aria-pressed="${beatSel===v}">${l}</button>`).join("");
  $("#amb").innerHTML=AMBS.map(([l,v])=>`<button class="chip" data-amb="${v||""}" aria-pressed="${ambSel===v}">${l}</button>`).join("")}
-function strike(){bowl(note.hz,8,.3);ripples.push({r:20,c:note.c,l:1})}
+function strike(){bowl(note.hz,8,.3);ripples.push({r:20,c:note.c,l:1});if(R3API.onStrike)R3API.onStrike()}
 const bcv=$("#bowlCv"),bcx=bcv.getContext("2d");
 function soundLoop(){if($("#v-sound").hidden)return;const W=bcv.clientWidth,H=bcv.clientHeight,d=devicePixelRatio||1;if(bcv.width!==W*d){bcv.width=W*d;bcv.height=H*d}bcx.setTransform(d,0,0,d,0,0);bcx.clearRect(0,0,W,H);
  if(AN){const a=new Uint8Array(AN.frequencyBinCount);AN.getByteFrequencyData(a);const n=64;for(let i=0;i<n;i++){const v=a[i]/255,ang=i/n*Math.PI*2,r0=Math.min(W,H)*.32,r1=r0+v*70;bcx.strokeStyle=note.c;bcx.globalAlpha=.25+v*.75;bcx.lineWidth=3;bcx.beginPath();bcx.moveTo(W/2+Math.cos(ang)*r0,H/2+Math.sin(ang)*r0);bcx.lineTo(W/2+Math.cos(ang)*r1,H/2+Math.sin(ang)*r1);bcx.stroke()}bcx.globalAlpha=1}
@@ -788,12 +803,12 @@ function breathGo(){if(bTimer){breathStop(false);return}const[, ,t]=PAT[pat],R=+
   bTimer=setTimeout(step,d*1000)};step()}
 /* garden */
 let tool="rake",gx=null,raking=null;const sand=$("#sand");
-function sandInit(){const r=sand.getBoundingClientRect(),d=devicePixelRatio||1;sand.width=r.width*d;sand.height=r.height*d;gx=sand.getContext("2d");gx.setTransform(d,0,0,d,0,0);smooth()}
-function smooth(){const W=sand.clientWidth,H=sand.clientHeight;gx.fillStyle="#e9dfc8";gx.fillRect(0,0,W,H);for(let i=0;i<W*H/40;i++){gx.fillStyle=Math.random()<.5?"rgba(160,140,100,.18)":"rgba(255,255,255,.35)";gx.fillRect(Math.random()*W,Math.random()*H,1,1)}
+function sandInit(){sand.width=1280;sand.height=800;gx=sand.getContext("2d");smooth()}
+let sandD=true;function smooth(){sandD=true;if(R3API.onClear)R3API.onClear();const W=sand.width,H=sand.height;gx.fillStyle="#e9dfc8";gx.fillRect(0,0,W,H);for(let i=0;i<W*H/40;i++){gx.fillStyle=Math.random()<.5?"rgba(160,140,100,.18)":"rgba(255,255,255,.35)";gx.fillRect(Math.random()*W,Math.random()*H,1,1)}
  gx.strokeStyle="rgba(150,130,95,.35)";gx.lineWidth=1.5;for(let y=14;y<H;y+=12){gx.beginPath();gx.moveTo(0,y);for(let x=0;x<=W;x+=20)gx.lineTo(x,y+Math.sin(x/60)*2);gx.stroke()}}
-function rakeSeg(a,b){const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<2)return false;const nx=-dy/L,ny=dx/L;for(let k=-2;k<=2;k++){const o=k*7;gx.lineCap="round";gx.strokeStyle="rgba(150,128,90,.55)";gx.lineWidth=2.4;gx.beginPath();gx.moveTo(a.x+nx*o,a.y+ny*o);gx.lineTo(b.x+nx*o,b.y+ny*o);gx.stroke();gx.strokeStyle="rgba(255,250,235,.7)";gx.lineWidth=1;gx.beginPath();gx.moveTo(a.x+nx*(o+1.6),a.y+ny*(o+1.6));gx.lineTo(b.x+nx*(o+1.6),b.y+ny*(o+1.6));gx.stroke()}return true}
-function rings(x,y,r0){for(let r=r0+8;r<r0+60;r+=8){gx.strokeStyle="rgba(150,128,90,.5)";gx.lineWidth=2;gx.beginPath();gx.ellipse(x,y,r,r*.8,0,0,7);gx.stroke();gx.strokeStyle="rgba(255,250,235,.6)";gx.lineWidth=1;gx.beginPath();gx.ellipse(x,y,r+1.6,(r+1.6)*.8,0,0,7);gx.stroke()}}
-function stone(x,y){const r=12+Math.random()*16;rings(x,y,r);gx.fillStyle="rgba(0,0,0,.25)";gx.beginPath();gx.ellipse(x+4,y+6,r,r*.75,0,0,7);gx.fill();const g=gx.createRadialGradient(x-r*.3,y-r*.3,2,x,y,r);g.addColorStop(0,"#9aa09a");g.addColorStop(1,"#3c423e");gx.fillStyle=g;gx.beginPath();gx.ellipse(x,y,r,r*.75,Math.random(),0,7);gx.fill()}
+function rakeSeg(a,b){const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy);if(L<3)return false;const nx=-dy/L,ny=dx/L;for(let k=-2;k<=2;k++){const o=k*13;gx.lineCap="round";gx.strokeStyle="rgba(120,98,62,.7)";gx.lineWidth=5;gx.beginPath();gx.moveTo(a.x+nx*o,a.y+ny*o);gx.lineTo(b.x+nx*o,b.y+ny*o);gx.stroke();gx.strokeStyle="rgba(255,250,235,.85)";gx.lineWidth=2;gx.beginPath();gx.moveTo(a.x+nx*(o+3.5),a.y+ny*(o+3.5));gx.lineTo(b.x+nx*(o+3.5),b.y+ny*(o+3.5));gx.stroke()}return true}
+function rings(x,y,r0){for(let r=r0+12;r<r0+110;r+=13){gx.strokeStyle="rgba(120,98,62,.65)";gx.lineWidth=4;gx.beginPath();gx.ellipse(x,y,r,r*.8,0,0,7);gx.stroke();gx.strokeStyle="rgba(255,250,235,.6)";gx.lineWidth=1;gx.beginPath();gx.ellipse(x,y,r+1.6,(r+1.6)*.8,0,0,7);gx.stroke()}}
+function stone(x,y){const r=26+Math.random()*24;rings(x,y,r);gx.fillStyle="rgba(0,0,0,.25)";gx.beginPath();gx.ellipse(x+4,y+6,r,r*.75,0,0,7);gx.fill();const g=gx.createRadialGradient(x-r*.3,y-r*.3,2,x,y,r);g.addColorStop(0,"#9aa09a");g.addColorStop(1,"#3c423e");gx.fillStyle=g;gx.beginPath();gx.ellipse(x,y,r,r*.75,Math.random(),0,7);gx.fill()}
 function moss(x,y){for(let i=0;i<60;i++){const a=Math.random()*7,d=Math.random()*18;gx.fillStyle=`hsl(${110+Math.random()*30},45%,${25+Math.random()*20}%)`;gx.beginPath();gx.arc(x+Math.cos(a)*d,y+Math.sin(a)*d*.8,2+Math.random()*2.5,0,7);gx.fill()}}
 const TOOLS=[["rake","Rake"],["stone","Stone"],["ripple","Ripple"],["moss","Moss"]];
 function toolsUI(){$("#tools").innerHTML=TOOLS.map(([k,l])=>`<button class="chip" data-tool="${k}" aria-pressed="${tool===k}">${l}</button>`).join("")+`<button class="chip" id="smooth">Smooth the sand</button>`}
@@ -818,7 +833,7 @@ function shrine(){const fig=`<path d="M150 70 a26 30 0 1 1 0.1 0Z M110 150 Q150 
 function align(){if(aligning){clearTimeout(aligning);aligning=null;shrine();return}let i=0;const step=()=>{if(i>=CK.length){aligning=null;chime();shrine();return}shrineSel=CK[i].k;bowl(CK[i].hz,8,.25);i++;aligning=setTimeout(step,8000);shrine()};aligning=1;step()}
 /* lanterns */
 function sky(){const s=$("#sky"),L=store.get("lanterns",[]);s.innerHTML=Array.from({length:60},()=>`<i class="star" style="left:${Math.random()*100}%;top:${Math.random()*70}%;opacity:${.2+Math.random()*.7}"></i>`).join("")+L.map((l,i)=>`<div class="lan" title="${esc(l.t)}" style="left:${l.x}%;top:${l.y}%;animation-delay:-${i%6}s;transform:scale(${l.s})"></div>`).join("")+(L.length?"":`<p class="small" style="position:absolute;bottom:12px;left:0;right:0;text-align:center">The sky is waiting for your first lantern.</p>`)}
-function release(e){e.preventDefault();const t=$("#lanTxt").value.trim();if(!t)return;const L=store.get("lanterns",[]),l={t,x:8+Math.random()*84,y:6+Math.random()*55,s:(.7+Math.random()*.6).toFixed(2)};L.push(l);store.set("lanterns",L.slice(-40));bump("lanterns");$("#lanTxt").value="";sky();const el=$$("#sky .lan").pop();if(el&&!RM){el.classList.add("rise");setTimeout(()=>el.classList.remove("rise"),5100)}chime()}
+function release(e){e.preventDefault();const t=$("#lanTxt").value.trim();if(!t)return;const L=store.get("lanterns",[]),l={t,x:8+Math.random()*84,y:6+Math.random()*55,s:(.7+Math.random()*.6).toFixed(2)};L.push(l);store.set("lanterns",L.slice(-40));bump("lanterns");$("#lanTxt").value="";sky();if(R3API.onRelease)R3API.onRelease(t);const el=$$("#sky .lan").pop();if(el&&!RM){el.classList.add("rise");setTimeout(()=>el.classList.remove("rise"),5100)}chime()}
 /* koans */
 function drawKoan(){const f=$("#fcard"),k=pick(KOANS);if(f.classList.contains("turned")){f.classList.remove("turned");setTimeout(()=>{$("#koanTxt").textContent=k;f.classList.add("turned")},RM?0:500)}else{$("#koanTxt").textContent=k;f.classList.add("turned")}bump("koans");if(!muted)bowl(528,3,.12);setTimeout(()=>speak(k),RM?0:700)}
 function journal(el){const J=store.get("journal",[]);$(el).innerHTML=J.length?J.slice().reverse().map(j=>`<div class="entry"><div class="small">${esc(j.d)} · ${esc(j.k)}</div><p style="margin:4px 0 0">${esc(j.t)}</p></div>`).join(""):`<div class="empty">Your reflections will appear here.</div>`}
@@ -848,8 +863,8 @@ function route(){const h=location.hash.slice(1),v=VIEWS.includes(h)?h:"home";
  $$("nav a").forEach(a=>a.hash==="#"+NAVOF[v]?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
  if(v!=="breath"&&bTimer)breathStop(false);if(chanting&&v!=="home"&&v!=="sound")stopChant();hush();
  if(v==="discover")list();if(v==="my-zen")myzen();if(v==="home"){picks();requestAnimationFrame(size)}
- if(v==="sound"){soundUI();requestAnimationFrame(soundLoop)}if(v==="breath")breathUI();if(v==="garden"){toolsUI();requestAnimationFrame(sandInit)}
- if(v==="walk")walkOpen();else walkClose();if(v==="cosmos")cosmosOpen();
+ if(v==="sound"){soundUI();requestAnimationFrame(soundLoop)}if(v==="breath")breathUI();if(v==="garden"){toolsUI();if(!gx)sandInit()}
+ if(v==="walk")walkOpen();else walkClose();if(R3ROOMS.includes(v))room3d(v);else r3Stop();if(v==="cosmos")cosmosOpen();
  if(v==="meditate")medUI();if(v==="chakras")shrine();if(v==="lantern")sky();if(v==="koan")journal("#journal");
  scrollTo(0,0)}
 
@@ -1003,6 +1018,30 @@ function walkClose(){if(temple)temple.stop()}
 function walkEnter(id){if(id==="master"){const q=pick(QUOTES),ws=$("#wsub");ws.hidden=false;ws.innerHTML=`<div class="who">The master speaks</div><p style="margin:6px 0 4px">${esc(q[0])}</p><div class="small">— ${esc(q[1])}</div>`;speak(q[0]);burst();clearTimeout(wsubT);wsubT=setTimeout(()=>ws.hidden=true,10000);return}location.hash=id}
 $("#enterBtn").onclick=()=>temple&&temple.enterNear();
 
+
+/* ================= 3D rooms ================= */
+let lastPos=null,skyNow=null,R3mod=null;const R3={},R3ROOMS=["sound","breath","garden","meditate","chakras","lantern","koan","cosmos"];
+const spec=new Uint8Array(128),tdd=new Uint8Array(256);
+const R3API={
+ strike:()=>strike(),noteColor:()=>note.c,
+ level:()=>{if(!AN)return 0;AN.getByteTimeDomainData(tdd);let s2=0;for(let i=0;i<tdd.length;i++){const v=(tdd[i]-128)/128;s2+=v*v}return Math.min(1,Math.sqrt(s2/tdd.length)*4)},
+ spectrum:()=>{if(!AN)return null;AN.getByteFrequencyData(spec);return spec},
+ breathScale:()=>{const m=getComputedStyle($("#orb2")).transform;if(!m||m==="none")return 1;const a=m.match(/matrix\(([^,]+)/);return a?parseFloat(a[1]):1},
+ sandCanvas:()=>{if(!gx)sandInit();return sand},
+ sandDirty:()=>{const d=sandD;sandD=false;return d},
+ gardenDown:(u,v)=>{if(!gx)sandInit();const p={x:u*1280,y:v*800};sandD=true;if(tool==="rake"){raking=p}else if(tool==="stone")stone(p.x,p.y);else if(tool==="ripple")rings(p.x,p.y,4);else moss(p.x,p.y);return tool},
+ gardenMove:(u,v)=>{if(!raking)return;const p={x:u*1280,y:v*800};if(rakeSeg(raking,p)){raking=p;sandD=true}},
+ gardenUp:()=>{raking=null},
+ medRunning:()=>!!medT,masterSVG:()=>masterTexture(),chakras:()=>CK,
+ selectChakra:k=>{shrineSel=k;shrine();bowl(CK.find(x=>x.k===k).hz,5,.2)},selectedChakra:()=>shrineSel,
+ lanterns:()=>store.get("lanterns",[]).map(l=>l.t),drawKoan:()=>drawKoan(),koanText:()=>$("#koanTxt").textContent,
+ positions:()=>lastPos||skyNow,signGlyphs:()=>["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"].map(g=>g+"︎"),signNames:()=>["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]
+};
+function r3Stop(except){Object.entries(R3).forEach(([k,s])=>{if(k!==except)s.stop()})}
+async function room3d(kind){r3Stop(kind);if(R3[kind]){R3[kind].start();return}const el=$("#r3d-"+kind);if(!el||el.dataset.loading)return;el.dataset.loading=1;
+ try{R3mod=R3mod||await import("./room3d.js");R3[kind]=R3mod.mountRoom(el,kind,R3API);el.classList.add("on");if(!$("#v-"+kind).hidden)R3[kind].start()}
+ catch(e){console.warn(e);el.classList.add("on");el.insertAdjacentHTML("beforeend",'<p class="small" style="position:absolute;inset:0;display:grid;place-items:center">This 3D room needs WebGL. Try a recent browser.</p>')}}
+
 /* ================= cosmos: astrology + human design ================= */
 const CITIES=[["Austin, TX",30.2672,-97.7431,"America/Chicago"],["Dallas, TX",32.7767,-96.797,"America/Chicago"],["Houston, TX",29.7604,-95.3698,"America/Chicago"],["New York, NY",40.7128,-74.006,"America/New_York"],["Miami, FL",25.7617,-80.1918,"America/New_York"],["Chicago, IL",41.8781,-87.6298,"America/Chicago"],["Denver, CO",39.7392,-104.9903,"America/Denver"],["Los Angeles, CA",34.0522,-118.2437,"America/Los_Angeles"],["San Francisco, CA",37.7749,-122.4194,"America/Los_Angeles"],["Seattle, WA",47.6062,-122.3321,"America/Los_Angeles"],["Toronto",43.6532,-79.3832,"America/Toronto"],["Vancouver",49.2827,-123.1207,"America/Vancouver"],["Mexico City",19.4326,-99.1332,"America/Mexico_City"],["Tulum",20.2114,-87.4654,"America/Cancun"],["São Paulo",-23.5505,-46.6333,"America/Sao_Paulo"],["Buenos Aires",-34.6037,-58.3816,"America/Argentina/Buenos_Aires"],["London",51.5074,-.1278,"Europe/London"],["Paris",48.8566,2.3522,"Europe/Paris"],["Berlin",52.52,13.405,"Europe/Berlin"],["Amsterdam",52.3676,4.9041,"Europe/Amsterdam"],["Budapest",47.4979,19.0402,"Europe/Budapest"],["Barcelona",41.3874,2.1686,"Europe/Madrid"],["Lisbon",38.7223,-9.1393,"Europe/Lisbon"],["Ibiza",38.9067,1.4206,"Europe/Madrid"],["Tel Aviv",32.0853,34.7818,"Asia/Jerusalem"],["Dubai",25.2048,55.2708,"Asia/Dubai"],["Mumbai",19.076,72.8777,"Asia/Kolkata"],["Bangkok",13.7563,100.5018,"Asia/Bangkok"],["Bali (Denpasar)",-8.6705,115.2126,"Asia/Makassar"],["Tokyo",35.6762,139.6503,"Asia/Tokyo"],["Sydney",-33.8688,151.2093,"Australia/Sydney"]];
 let CM=null,cosmosInit=false;
@@ -1012,7 +1051,7 @@ function cosmosOpen(){if(cosmosInit)return;cosmosInit=true;
  $("#cityList").innerHTML=CITIES.map(c=>`<option value="${c[0]}">`).join("");
  try{$("#tzList").innerHTML=Intl.supportedValuesOf("timeZone").map(z=>`<option value="${z}">`).join("")}catch(e){}
  const b=store.get("birth",null);if(b){$("#bName").value=b.name||"";$("#bDate").value=b.date;$("#bTime").value=b.time||"12:00";$("#bNoTime").checked=!!b.noTime;setPlace(b.place||"",b.lat,b.lon,b.tz);readStars()}
- loadCosmos().catch(()=>{$("#cosmosMsg").textContent="The star library could not load. Check your connection."})}
+ loadCosmos().then(C=>{skyNow=C.positions(new Date())}).catch(()=>{$("#cosmosMsg").textContent="The star library could not load. Check your connection."})}
 $("#bPlace").addEventListener("input",e=>{const c=CITIES.find(c=>c[0]===e.target.value);if(c)setPlace(...c)});
 $("#findPlace").onclick=async()=>{const q=$("#bPlace").value.trim();if(!q)return;const c=CITIES.find(c=>c[0].toLowerCase().startsWith(q.toLowerCase()));$("#placeRes").innerHTML=`<span class="small">Searching…</span>`;
  try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);const j=await r.json();const L=(j.results||[]);
@@ -1027,7 +1066,7 @@ async function readStars(talk){const m=$("#cosmosMsg");m.textContent="Reading th
   if(!(Math.abs(lat)<=90&&Math.abs(lon)<=180))throw new Error("Check the latitude and longitude.");
   try{new Intl.DateTimeFormat("en-US",{timeZone:b.tz})}catch(x){throw new Error("Time zone not recognised. Try one like America/Chicago.")}
   const utc=C.zonedToUTC(y,mo,d,h,mi,b.tz),pos=C.positions(utc),ang=b.noTime?null:C.angles(utc,lat,lon),hd=C.humanDesign(utc);
-  renderAstro(C,pos,ang);renderHD(C,hd);
+  lastPos=pos;renderAstro(C,pos,ang);renderHD(C,hd);
   const S_=k=>C.SIGNS[C.signOf(pos[k])],nm=b.name?b.name+", ":"";
   const txt=`${nm}your Sun is in ${S_("sun")}, ${C.SIGN_WORDS[C.signOf(pos.sun)]}. Your Moon is in ${S_("moon")}${ang?`, and ${C.SIGNS[C.signOf(ang.asc)]} is rising`:""}. In Human Design you are a ${hd.type} with ${hd.authority} authority and a ${hd.profile} profile. Your strategy: ${hd.strategy.toLowerCase()}.`;
   $("#reading").textContent=txt+(ang?"":" Add a birth time to reveal your rising sign and houses.");$("#cosmosOut").hidden=false;m.textContent="";if(talk){speak(txt);$("#cosmosOut").scrollIntoView({behavior:RM?"auto":"smooth"})}}
